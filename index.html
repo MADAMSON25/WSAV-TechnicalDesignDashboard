@@ -237,6 +237,49 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .field-group{display:flex;flex-direction:column;gap:6px}
 .field-label{font-size:11px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700}
 
+/* ── Drawing type multiselect ── */
+.drawing-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.dt-opt{display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;cursor:pointer;transition:border-color 0.15s;user-select:none}
+.dt-opt:hover{border-color:var(--wsav-border-light)}
+.dt-opt.selected{border-color:var(--wsav-gold-muted);background:rgba(212,160,23,0.06)}
+.dt-opt input[type=checkbox]{display:none}
+.dt-check{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--wsav-border-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+.dt-opt.selected .dt-check{border-color:var(--wsav-gold);background:var(--wsav-gold)}
+.dt-check-inner{display:none;width:9px;height:9px}
+.dt-opt.selected .dt-check-inner{display:block}
+.dt-text{font-size:12px;color:var(--wsav-offwhite);line-height:1.3}
+.dt-badge{font-size:10px;color:var(--wsav-text-muted);margin-top:1px}
+.dt-selected-count{font-size:11px;color:var(--wsav-gold);font-style:italic;margin-top:5px}
+/* ── Revision toggle ── */
+.revision-toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rev-opt{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;cursor:pointer;transition:border-color 0.15s;user-select:none}
+.rev-opt:hover{border-color:var(--wsav-border-light)}
+.rev-opt.selected.rev-new{border-color:rgba(110,230,139,0.5);background:rgba(46,204,113,0.06)}
+.rev-opt.selected.rev-revision{border-color:rgba(212,160,23,0.5);background:rgba(212,160,23,0.06)}
+.rev-opt input[type=radio]{display:none}
+.rev-icon{font-size:16px;flex-shrink:0}
+.rev-label{font-size:13px;color:var(--wsav-offwhite);font-weight:600}
+.rev-sub{font-size:10px;color:var(--wsav-text-muted);margin-top:1px}
+.rev-ref-row{display:none;margin-top:8px}
+.rev-ref-row.visible{display:block}
+/* ── Submit confirmation overlay ── */
+.confirm-overlay{position:fixed;inset:0;z-index:1000;background:rgba(8,37,32,0.97);display:none;align-items:center;justify-content:center;animation:fadeIn 0.2s ease}
+.confirm-overlay.open{display:flex}
+.confirm-card{background:var(--wsav-dark);border:1px solid var(--wsav-border-light);border-radius:16px;padding:2.5rem 2rem;width:480px;max-width:95vw;text-align:center;animation:fadeUp 0.22s ease}
+.confirm-icon{font-size:44px;margin-bottom:16px}
+.confirm-title{font-size:18px;font-weight:700;color:var(--wsav-gold);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
+.confirm-sub{font-size:13px;color:var(--wsav-text-muted);line-height:1.6;margin-bottom:24px}
+.confirm-details{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:8px;padding:14px 16px;text-align:left;margin-bottom:20px;display:flex;flex-direction:column;gap:7px}
+.confirm-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px}
+.confirm-key{color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.07em;font-size:10px;font-weight:700;flex-shrink:0}
+.confirm-val{color:var(--wsav-offwhite);text-align:right;word-break:break-word}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+/* ── Project link field ── */
+.proj-link-hint{font-size:11px;color:#4a7570;line-height:1.5;margin-top:3px}
+.proj-link-hint a{color:var(--wsav-gold);text-decoration:none}
+.proj-link-hint a:hover{text-decoration:underline}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
 /* ── Export modal ── */
 .ex-chip{font-size:11px;padding:5px 14px;border:1px solid var(--wsav-border);border-radius:20px;background:none;color:var(--wsav-text-muted);cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;font-family:inherit}
 .ex-chip:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold)}
@@ -395,64 +438,161 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
       <div class="modal-subtitle">Complete all required fields — submitted to the CAD team for assignment</div>
     </div>
     <div class="modal-body" id="raise-modal-body">
-      <div class="field-group">
-        <div class="field-label">1. Upload Files</div>
-        <div class="file-drop-zone" id="file-drop">
-          <input type="file" id="file-input" multiple accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.png,.jpg,.jpeg,.gif,.mp4,.mov,.avi,.mp3,.wav" style="display:none"/>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <p>Click to upload or drag &amp; drop</p>
-          <span>Word, Excel, PPT, PDF, Image, Video, Audio — up to 10 files, 1 GB each</span>
-        </div>
-        <div class="file-list" id="file-list"></div>
-      </div>
+
+      <!-- 1. Project Details -->
       <div class="field-group-row">
         <div class="field-group">
-          <div class="field-label">2. Project Name <span style="color:#ff8a80">*</span></div>
+          <div class="field-label">1. Project Name <span style="color:#ff8a80">*</span></div>
           <input type="text" class="form-input" id="f-proj-name" placeholder="e.g. Acme HQ — Level 3"/>
         </div>
         <div class="field-group">
           <div class="field-label">Project Code <span style="color:#ff8a80">*</span></div>
-          <input type="text" class="form-input" id="f-proj-code" placeholder="e.g. 250001"/>
+          <input type="text" class="form-input" id="f-proj-code" placeholder="e.g. WAV-2025-001"/>
+          <div class="proj-link-hint" id="proj-dashboard-hint">View in <a href="#" id="proj-dashboard-link" target="_blank">Project Dashboard</a></div>
         </div>
       </div>
+
+      <!-- 2. PM / POC -->
       <div class="field-group">
-        <div class="field-label">3. Assigned PM / Point of Contact <span style="color:#ff8a80">*</span></div>
+        <div class="field-label">2. Assigned PM / Point of Contact <span style="color:#ff8a80">*</span></div>
         <input type="text" class="form-input" id="f-pm" placeholder="Full name or email address"/>
       </div>
+
+      <!-- 3. Technical Lead -->
       <div class="field-group">
-        <div class="field-label">4. Assigned Technical Lead / System Designer <span style="color:#ff8a80">*</span></div>
-        <input type="text" class="form-input" id="f-lead" placeholder="Full name or email address"/>
+        <div class="field-label">3. Technical Lead / System Designer <span style="color:#ff8a80">*</span></div>
+        <input type="text" class="form-input" id="f-lead" placeholder="Full name or email address — leave blank if to be assigned"/>
       </div>
+
+      <!-- 4. New or Revision -->
       <div class="field-group">
-        <div class="field-label">5. Scope of Works</div>
-        <div class="field-hint">Optional. Not required if providing a comprehensive mark up with room descriptions.</div>
-        <textarea class="form-textarea" id="f-scope" placeholder="Describe the scope of works…"></textarea>
+        <div class="field-label">4. Request Type <span style="color:#ff8a80">*</span></div>
+        <div class="revision-toggle-row">
+          <label class="rev-opt rev-new" id="rev-new-opt">
+            <input type="radio" name="revision" value="New"/>
+            <span class="rev-icon">✦</span>
+            <div>
+              <div class="rev-label">New Design</div>
+              <div class="rev-sub">First-time drawing request</div>
+            </div>
+          </label>
+          <label class="rev-opt rev-revision" id="rev-rev-opt">
+            <input type="radio" name="revision" value="Revision"/>
+            <span class="rev-icon">↺</span>
+            <div>
+              <div class="rev-label">Revision</div>
+              <div class="rev-sub">Amendment to existing drawing</div>
+            </div>
+          </label>
+        </div>
+        <div class="rev-ref-row" id="rev-ref-row">
+          <input type="text" class="form-input" id="f-rev-ref" placeholder="Existing drawing reference or revision number (e.g. Rev B, DWG-2025-001)"/>
+        </div>
       </div>
+
+      <!-- 5. Drawing Types -->
       <div class="field-group">
-        <div class="field-label">6. Floor Construction Type <span style="color:#ff8a80">*</span></div>
+        <div class="field-label">5. Drawing Type(s) Required <span style="color:#ff8a80">*</span></div>
+        <div class="drawing-type-grid" id="drawing-type-grid">
+          <label class="dt-opt" data-value="Floor Plan">
+            <input type="checkbox" name="drawingType" value="Floor Plan"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Floor Plan</div><div class="dt-badge">Cable routes &amp; room layout</div></div>
+          </label>
+          <label class="dt-opt" data-value="Rack Elevation">
+            <input type="checkbox" name="drawingType" value="Rack Elevation"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Rack Elevation</div><div class="dt-badge">Equipment rack layout</div></div>
+          </label>
+          <label class="dt-opt" data-value="Cable Schedule">
+            <input type="checkbox" name="drawingType" value="Cable Schedule"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Cable Schedule</div><div class="dt-badge">Full cable list &amp; lengths</div></div>
+          </label>
+          <label class="dt-opt" data-value="Schematic / Signal Flow">
+            <input type="checkbox" name="drawingType" value="Schematic / Signal Flow"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Schematic / Signal Flow</div><div class="dt-badge">AV signal &amp; connectivity diagram</div></div>
+          </label>
+          <label class="dt-opt" data-value="As-Built Drawing">
+            <input type="checkbox" name="drawingType" value="As-Built Drawing"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">As-Built Drawing</div><div class="dt-badge">Post-install record</div></div>
+          </label>
+          <label class="dt-opt" data-value="Conceptual Design">
+            <input type="checkbox" name="drawingType" value="Conceptual Design"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Conceptual Design</div><div class="dt-badge">Pre-sales visualisation</div></div>
+          </label>
+          <label class="dt-opt" data-value="Equipment Schedule">
+            <input type="checkbox" name="drawingType" value="Equipment Schedule"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Equipment Schedule</div><div class="dt-badge">BOM / kit list</div></div>
+          </label>
+          <label class="dt-opt" data-value="Network / IP Diagram">
+            <input type="checkbox" name="drawingType" value="Network / IP Diagram"/>
+            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div><div class="dt-text">Network / IP Diagram</div><div class="dt-badge">IT infrastructure drawing</div></div>
+          </label>
+        </div>
+        <div class="dt-selected-count" id="dt-count" style="display:none"></div>
+      </div>
+
+      <!-- 6. Scope of Works -->
+      <div class="field-group">
+        <div class="field-label">6. Scope of Works</div>
+        <div class="field-hint">Describe what's needed. Include number of rooms, key equipment, and any special requirements.<br/>
+          <span style="color:#4a7570;font-style:italic">e.g. "3 meeting rooms + 1 boardroom — see marked-up floor plan attached. Boardroom needs full VC and DSP."</span><br/>
+          Not required if uploading a fully marked-up floor plan with room descriptions.
+        </div>
+        <textarea class="form-textarea" id="f-scope" placeholder="Describe the scope of works, or reference the uploaded mark-up…" style="min-height:90px"></textarea>
+      </div>
+
+      <!-- 7. Floor Construction Type -->
+      <div class="field-group">
+        <div class="field-label">7. Floor Construction Type <span style="color:#ff8a80">*</span></div>
         <div class="radio-group">
           <label class="radio-opt" id="ro-solid"><input type="radio" name="floor" value="Solid Floor Construction"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Solid Floor Construction</span></label>
           <label class="radio-opt" id="ro-raised"><input type="radio" name="floor" value="Computer Raise Floor"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Computer Raise Floor</span></label>
         </div>
       </div>
+
+      <!-- 8. Pre / Post Sales -->
       <div class="field-group">
-        <div class="field-label">7. Is this a Pre / Post Sales Project? <span style="color:#ff8a80">*</span></div>
+        <div class="field-label">8. Pre / Post Sales <span style="color:#ff8a80">*</span></div>
         <div class="radio-group">
-          <label class="radio-opt" id="ro-pre"><input type="radio" name="sales" value="Pre Sales"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Pre Sales</span></label>
+          <label class="radio-opt" id="ro-pre"><input type="radio" name="sales" value="Pre Sales"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Pre Sales <span style="font-size:11px;color:var(--wsav-text-muted);font-weight:400">— may be deprioritised if Post Sales demand is high</span></span></label>
           <label class="radio-opt" id="ro-post"><input type="radio" name="sales" value="Post Sales"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Post Sales</span></label>
         </div>
       </div>
+
+      <!-- 9. Required By Date -->
       <div class="field-group">
-        <div class="field-label">8. Required by Date <span style="color:#ff8a80">*</span></div>
+        <div class="field-label">9. Required by Date <span style="color:#ff8a80">*</span></div>
         <input type="date" class="date-input" id="f-date"/>
       </div>
+
+      <!-- 10. Priority -->
       <div class="field-group">
-        <div class="field-label">9. Prioritisation <span style="color:#ff8a80">*</span></div>
+        <div class="field-label">10. Prioritisation <span style="color:#ff8a80">*</span></div>
         <div class="radio-group">
           <label class="radio-opt" id="ro-p1"><input type="radio" name="priority" value="P1"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">P1 — Critical / urgent</span></label>
           <label class="radio-opt" id="ro-p2"><input type="radio" name="priority" value="P2"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">P2 — Standard priority</span></label>
         </div>
       </div>
+
+      <!-- 11. Upload Files (moved to last) -->
+      <div class="field-group">
+        <div class="field-label">11. Supporting Files <span style="font-size:10px;color:var(--wsav-text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional — attach marked-up plans, specs, photos)</span></div>
+        <div class="file-drop-zone" id="file-drop">
+          <input type="file" id="file-input" multiple accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.png,.jpg,.jpeg,.gif,.mp4,.mov,.avi,.mp3,.wav,.dwg,.dxf" style="display:none"/>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>Click to upload or drag &amp; drop</p>
+          <span>Word, Excel, PPT, PDF, Image, Video, DWG/DXF — up to 10 files, 1 GB each</span>
+        </div>
+        <div class="file-list" id="file-list"></div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <span class="modal-footer-note">* Required fields</span>
@@ -460,6 +600,20 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
         <button type="button" class="btn-outline" id="raise-cancel">Cancel</button>
         <button type="button" class="btn-gold" id="raise-submit">Submit Request</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT CONFIRMATION OVERLAY -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-card">
+    <div class="confirm-icon">✅</div>
+    <div class="confirm-title">Request Submitted</div>
+    <div class="confirm-sub" id="confirm-sub">Your design request has been added to the CAD queue and the team has been notified.</div>
+    <div class="confirm-details" id="confirm-details"></div>
+    <div class="confirm-actions">
+      <button type="button" class="btn-outline" id="confirm-close">Close</button>
+      <button type="button" class="btn-gold" id="confirm-view">View Request</button>
     </div>
   </div>
 </div>
@@ -645,7 +799,7 @@ async function spCreate(payload){
 }
 
 async function spSave(req){
-  if(!req.spId) return;
+  if(!req.spId||req.spId>=2147483647) return;
   await spMerge(`${SP_API}(${req.spId})`,{
     RequestStatus:req.status, Archived:req.archived,
     CADNotes:req.notes||'',
@@ -939,6 +1093,7 @@ function makeCard(req,isArchive){
     <div class="prog-track"><div class="prog-bar ${progClass}" style="width:${pct}%"></div></div>
     <div class="card-badges" id="badges-${req.spId||req.id}">
       <span class="prio-badge ${prioClass}">${esc(req.priority)}</span>
+      ${req.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
       ${dueBadge}
     </div>
     <div class="card-footer">
@@ -1050,6 +1205,8 @@ function openDetail(id){
         <span class="dk">Priority</span><span class="dv">${esc(r.priority)}</span>
         <span class="dk">Raised By</span><span class="dv">${esc(r.createdBy||'—')}</span>
         <span class="dk">Date Raised</span><span class="dv">${esc(r.created||'—')}</span>
+        ${r.drawingTypes&&r.drawingTypes.length?`<span class="dk">Drawing Type(s)</span><span class="dv">${esc(r.drawingTypes.join(', '))}</span>`:''}
+        ${r.revisionType?`<span class="dk">Request Type</span><span class="dv">${esc(r.revisionType==='Revision'&&r.revisionRef?`Revision — ${r.revisionRef}`:r.revisionType||'—')}</span>`:''}
       </div>
     </div>
     ${r.scope?`<div><div class="section-head">Scope of Works</div><div style="font-size:13px;color:var(--wsav-offwhite);line-height:1.6;margin-top:8px">${esc(r.scope)}</div></div>`:''}
@@ -1135,7 +1292,7 @@ function openDetail(id){
       if(nameInput.value.trim().length<2) return;
       confirmBtn.disabled=true; confirmBtn.textContent='Deleting…';
       try{
-        if(spEnabled&&(r.spId)){
+        if(spEnabled&&r.spId&&r.spId<2147483647){
           try{ await spDelete(`${SP_API}(${r.spId})`); }
           catch(e){
             if(!e.message||!e.message.includes('404')){
@@ -1224,11 +1381,68 @@ function closeRaiseModal(){
   resetRaiseForm();
 }
 function resetRaiseForm(){
-  ['f-proj-name','f-proj-code','f-pm','f-lead','f-scope','f-date'].forEach(id=>{ document.getElementById(id).value=''; });
+  ['f-proj-name','f-proj-code','f-pm','f-lead','f-scope','f-date','f-rev-ref'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('selected'));
   document.querySelectorAll('input[type=radio]').forEach(r=>{ r.checked=false; });
+  document.querySelectorAll('.rev-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('rev-ref-row').classList.remove('visible');
+  // Reset drawing types
+  document.querySelectorAll('.dt-opt').forEach(o=>{ o.classList.remove('selected'); const cb=o.querySelector('input[type=checkbox]'); if(cb) cb.checked=false; });
+  updateDTCount();
   selectedFiles=[]; document.getElementById('file-list').innerHTML='';
+  // Reset project link hint
+  updateProjDashboardLink('');
 }
+
+/* ── Project Dashboard link ── */
+function updateProjDashboardLink(code){
+  const link=document.getElementById('proj-dashboard-link');
+  const hint=document.getElementById('proj-dashboard-hint');
+  if(!code||!code.trim()){ hint.style.display='none'; return; }
+  hint.style.display='block';
+  // Attempt to link to Project Dashboard — open in new tab
+  // Update href to reference project dashboard filtered by code
+  link.href=`#`; // Will use click handler
+  link.onclick=function(e){
+    e.preventDefault();
+    // Try to find the project in the current page or navigate to project dashboard
+    // For now we use a hash-based approach that can be wired up
+    const msg=`To view this project in the Project Dashboard, open ProjectDashboard.html and search for "${code}".`;
+    showToast(msg,'info');
+  };
+  link.textContent='Project Dashboard →';
+}
+document.getElementById('f-proj-code').addEventListener('input',function(){
+  updateProjDashboardLink(this.value.trim());
+});
+
+/* ── Drawing type multiselect ── */
+function updateDTCount(){
+  const selected=document.querySelectorAll('.dt-opt.selected');
+  const countEl=document.getElementById('dt-count');
+  if(selected.length===0){ countEl.style.display='none'; return; }
+  countEl.style.display='block';
+  countEl.textContent=`${selected.length} drawing type${selected.length>1?'s':''} selected`;
+}
+document.querySelectorAll('.dt-opt').forEach(opt=>{
+  opt.addEventListener('click',()=>{
+    opt.classList.toggle('selected');
+    const cb=opt.querySelector('input[type=checkbox]');
+    if(cb) cb.checked=opt.classList.contains('selected');
+    updateDTCount();
+  });
+});
+
+/* ── Revision toggle ── */
+document.querySelectorAll('.rev-opt').forEach(opt=>{
+  opt.addEventListener('click',()=>{
+    document.querySelectorAll('.rev-opt').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+    const radio=opt.querySelector('input[type=radio]');
+    if(radio) radio.checked=true;
+    document.getElementById('rev-ref-row').classList.toggle('visible', radio&&radio.value==='Revision');
+  });
+});
 
 /* ── File upload ── */
 const fileDrop=document.getElementById('file-drop'), fileInput=document.getElementById('file-input');
@@ -1258,7 +1472,7 @@ function renderFileList(){
   list.querySelectorAll('.file-remove').forEach(btn=>btn.addEventListener('click',()=>{ selectedFiles.splice(parseInt(btn.dataset.i),1); renderFileList(); }));
 }
 
-/* ── Radio buttons ── */
+/* ── Radio buttons (floor / sales / priority) ── */
 document.querySelectorAll('.radio-opt').forEach(opt=>{
   opt.addEventListener('click',()=>{
     const radio=opt.querySelector('input[type=radio]');
@@ -1266,6 +1480,40 @@ document.querySelectorAll('.radio-opt').forEach(opt=>{
     radio.checked=true; opt.classList.add('selected');
   });
 });
+
+/* ── Confirmation overlay ── */
+let lastSubmittedId=null;
+document.getElementById('confirm-close').addEventListener('click',()=>{
+  document.getElementById('confirm-overlay').classList.remove('open');
+});
+document.getElementById('confirm-view').addEventListener('click',()=>{
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if(lastSubmittedId) openDetail(lastSubmittedId);
+});
+
+function showConfirmation(req, fileCount){
+  lastSubmittedId=req.spId||req.id;
+  const drawingTypes=req.drawingTypes&&req.drawingTypes.length?req.drawingTypes.join(', '):'—';
+  const revLabel=req.revisionType==='Revision'?`Revision${req.revisionRef?' ('+req.revisionRef+')':''}`:'New Design';
+  document.getElementById('confirm-sub').textContent=
+    fileCount>0
+      ? `Request submitted with ${fileCount} file${fileCount>1?'s':''} uploaded. The CAD team has been notified.`
+      : 'Your design request has been added to the CAD queue and the team has been notified.';
+  const rows=[
+    ['Project',req.projectName],
+    ['Code',req.projectCode],
+    ['PM / POC',req.pm],
+    ['Drawing Type(s)',drawingTypes],
+    ['Request Type',revLabel],
+    ['Required By',fmtDate(req.requiredBy)],
+    ['Priority',req.priority],
+    ['Sales',req.sales],
+  ];
+  document.getElementById('confirm-details').innerHTML=rows.map(([k,v])=>
+    `<div class="confirm-row"><span class="confirm-key">${esc(k)}</span><span class="confirm-val">${esc(v||'—')}</span></div>`
+  ).join('');
+  document.getElementById('confirm-overlay').classList.add('open');
+}
 
 /* ── Submit ── */
 document.getElementById('raise-submit').addEventListener('click',async function(){
@@ -1278,17 +1526,24 @@ document.getElementById('raise-submit').addEventListener('click',async function(
   const sales=document.querySelector('input[name="sales"]:checked')?.value||'';
   const requiredBy=document.getElementById('f-date').value;
   const priority=document.querySelector('input[name="priority"]:checked')?.value||'';
+  const revisionType=document.querySelector('input[name="revision"]:checked')?.value||'';
+  const revisionRef=document.getElementById('f-rev-ref')?.value.trim()||'';
 
-  if(!projectName||!projectCode||!pm||!lead||!floorType||!sales||!requiredBy||!priority){
-    showToast('Please complete all required fields.','error'); return;
+  // Drawing types
+  const drawingTypes=Array.from(document.querySelectorAll('.dt-opt.selected'))
+    .map(o=>o.dataset.value).filter(Boolean);
+
+  if(!projectName||!projectCode||!pm||!lead||!floorType||!sales||!requiredBy||!priority||!revisionType||!drawingTypes.length){
+    showToast('Please complete all required fields, including Request Type and at least one Drawing Type.','error'); return;
   }
 
   this.disabled=true; this.textContent='Creating request…';
-  let newId=Date.now(), uploadedFiles=[];
+  const localId=Date.now(); // local-only temporary ID — never sent to SharePoint
+  let spId=null, uploadedFiles=[];
 
   try{
     if(spEnabled){
-      try{ newId=await spCreate({projectName,projectCode,pm,lead,scope,floorType,sales,requiredBy,priority}); }
+      try{ spId=await spCreate({projectName,projectCode,pm,lead,scope,floorType,sales,requiredBy,priority}); }
       catch(e){ console.warn('SP create failed:',e); }
       if(selectedFiles.length){
         this.textContent=`Uploading ${selectedFiles.length} file${selectedFiles.length>1?'s':''}…`;
@@ -1303,9 +1558,11 @@ document.getElementById('raise-submit').addEventListener('click',async function(
     }
     const createdBy=spAccount?.name||'Me';
     const newReq={
-      id:newId, spId:spEnabled?newId:null,
+      id:spId||localId, spId:spId||null,
       projectName, projectCode, pm, lead, scope, notes:'',
       floorType, sales, requiredBy, priority,
+      revisionType, revisionRef,
+      drawingTypes,
       status:'In Design', archived:false,
       createdBy, created:new Date().toISOString().substring(0,10),
       lastModifiedBy:'', lastModifiedAt:'',
@@ -1314,8 +1571,8 @@ document.getElementById('raise-submit').addEventListener('click',async function(
     };
     state.requests.unshift(newReq);
     saveLocal(); renderStats(); renderGrid(); closeRaiseModal();
-    const fileMsg=uploadedFiles.filter(f=>!f.error).length>0?` — ${uploadedFiles.filter(f=>!f.error).length} file(s) uploaded`:'';
-    showToast(`Request submitted successfully!${fileMsg}`,'success');
+    const successFileCount=uploadedFiles.filter(f=>!f.error).length;
+    showConfirmation(newReq, successFileCount);
   }catch(e){
     console.error('Submit error:',e); showToast('Failed to submit. Please try again.','error');
   }finally{
@@ -1512,6 +1769,9 @@ function hideLoadingOverlay(){
    INIT
 ═══════════════════════════════ */
 document.getElementById('today-label').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+// Initialise project link hint as hidden
+const _pdhint=document.getElementById('proj-dashboard-hint');
+if(_pdhint) _pdhint.style.display='none';
 
 // Load local data and render immediately so the UI isn't blank
 state.requests=loadLocal();
