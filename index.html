@@ -212,30 +212,68 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .file-remove:hover{color:#ff8a80}
 
 /* ── Detail panel ── */
-.overlay{display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,0.55)}
+.overlay{display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px)}
 .overlay.open{display:block}
-.detail-panel{display:none;position:fixed;top:0;right:0;width:min(480px,100vw);height:100vh;background:var(--wsav-dark);border-left:1px solid var(--wsav-border);z-index:100;overflow-y:auto}
-.detail-panel.open{display:block}
-.panel-header{background:var(--wsav-dark2);padding:1.25rem 1.5rem;border-bottom:1px solid var(--wsav-border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.panel-title{font-size:15px;font-weight:700;color:var(--wsav-white);line-height:1.4;margin-top:2px}
-.panel-code{font-size:12px;color:var(--wsav-gold);margin-top:4px;font-weight:600}
-.panel-close{background:none;border:1px solid var(--wsav-border);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--wsav-text-muted);white-space:nowrap;flex-shrink:0;font-family:inherit}
-.panel-close:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold)}
-.panel-body{padding:1.5rem;display:flex;flex-direction:column;gap:20px}
-.section-head{font-size:11px;color:var(--wsav-gold);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;border-bottom:1px solid var(--wsav-border);padding-bottom:7px;display:flex;align-items:center;justify-content:space-between}
-.detail-grid{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;align-items:start}
-.dk{font-size:12px;color:var(--wsav-text-muted);padding-top:1px}
-.dv{font-size:12px;color:var(--wsav-offwhite);word-break:break-word}
+.detail-panel{display:none;position:fixed;top:0;right:0;width:min(520px,100vw);height:100vh;background:var(--wsav-dark3);border-left:1px solid var(--wsav-border);z-index:100;overflow-y:auto;display:flex;flex-direction:column}
+.detail-panel.open{display:flex}
+/* Panel hero header */
+.panel-hero{background:linear-gradient(160deg,#0f3d36 0%,var(--wsav-dark3) 100%);border-bottom:1px solid var(--wsav-border);padding:1.5rem 1.5rem 1.25rem;position:relative;overflow:hidden;flex-shrink:0}
+.panel-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--wsav-gold-muted),var(--wsav-gold),var(--wsav-gold-muted))}
+.panel-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.panel-hero-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.panel-title{font-size:17px;font-weight:700;color:var(--wsav-white);line-height:1.35;margin-bottom:3px}
+.panel-code{font-size:12px;color:var(--wsav-gold);font-weight:700;letter-spacing:0.06em}
+.panel-close{background:rgba(255,255,255,0.05);border:1px solid var(--wsav-border-light);border-radius:7px;padding:7px 13px;cursor:pointer;font-size:11px;font-weight:600;color:var(--wsav-text-muted);white-space:nowrap;flex-shrink:0;font-family:inherit;text-transform:uppercase;letter-spacing:0.06em;transition:all 0.15s}
+.panel-close:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold);background:rgba(212,160,23,0.06)}
+/* Panel body sections */
+.panel-body{padding:0;display:flex;flex-direction:column;flex:1}
+.panel-section{padding:1.25rem 1.5rem;border-bottom:1px solid var(--wsav-border)}
+.panel-section:last-child{border-bottom:none}
+.section-head{font-size:10px;color:var(--wsav-gold);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+/* Status row */
 .panel-status-row{display:flex;align-items:center;gap:10px}
-.notes-label{font-size:11px;font-weight:700;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
-.notes-area textarea,.panel-notes-area textarea{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:9px 12px;font-family:inherit;width:100%;min-height:80px;resize:vertical;line-height:1.5}
-.notes-area textarea:focus,.panel-notes-area textarea:focus{outline:none;border-color:var(--wsav-gold-muted)}
-.notes-area textarea::placeholder,.panel-notes-area textarea::placeholder{color:var(--wsav-text-muted)}
-.archive-action-btn{background:none;border:1px solid var(--wsav-border-light);border-radius:6px;color:var(--wsav-text-muted);font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit}
+/* Detail grid — read mode */
+.detail-grid{display:grid;grid-template-columns:140px 1fr;gap:9px 12px;align-items:start}
+.dk{font-size:11px;color:var(--wsav-text-muted);padding-top:2px;letter-spacing:0.03em}
+.dv{font-size:13px;color:var(--wsav-offwhite);word-break:break-word;font-weight:500}
+/* Editable field in panel */
+.panel-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.panel-edit-grid .full-width{grid-column:1/-1}
+.panel-field{display:flex;flex-direction:column;gap:5px}
+.panel-field-label{font-size:10px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700}
+.panel-input{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:8px 11px;font-family:inherit;width:100%}
+.panel-input:focus{outline:none;border-color:var(--wsav-gold-muted)}
+.panel-input::placeholder{color:var(--wsav-text-muted)}
+.panel-select{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:8px 11px;font-family:inherit;width:100%;cursor:pointer}
+.panel-select:focus{outline:none;border-color:var(--wsav-gold-muted)}
+.panel-date{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:8px 11px;font-family:inherit;width:100%;color-scheme:dark}
+.panel-date:focus{outline:none;border-color:var(--wsav-gold-muted)}
+.panel-save-row{display:flex;justify-content:flex-end;margin-top:6px}
+/* Notes */
+.panel-notes-area textarea{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:9px 12px;font-family:inherit;width:100%;min-height:90px;resize:vertical;line-height:1.5}
+.panel-notes-area textarea:focus{outline:none;border-color:var(--wsav-gold-muted)}
+.panel-notes-area textarea::placeholder{color:var(--wsav-text-muted)}
+/* Drawings-ready toggle */
+.drawings-ready-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all 0.15s;user-select:none}
+.drawings-ready-toggle:hover{border-color:var(--wsav-border-light)}
+.drawings-ready-toggle.active{border-color:rgba(110,230,139,0.4);background:rgba(46,204,113,0.06)}
+.drt-label{display:flex;flex-direction:column;gap:3px}
+.drt-title{font-size:13px;font-weight:600;color:var(--wsav-offwhite)}
+.drt-sub{font-size:11px;color:var(--wsav-text-muted)}
+.drt-switch{width:40px;height:22px;border-radius:11px;background:var(--wsav-border);position:relative;transition:background 0.2s;flex-shrink:0}
+.drt-switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s}
+.drawings-ready-toggle.active .drt-switch{background:rgba(46,204,113,0.7)}
+.drawings-ready-toggle.active .drt-switch::after{transform:translateX(18px)}
+/* Drawings-ready badge on card */
+.dr-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(46,204,113,0.15);color:#6ee68b;border:1px solid rgba(46,204,113,0.35);display:flex;align-items:center;gap:4px;white-space:nowrap}
+/* Archive & last modified */
+.archive-action-btn{background:none;border:1px solid var(--wsav-border-light);border-radius:6px;color:var(--wsav-text-muted);font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit;transition:all 0.15s}
 .archive-action-btn:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold)}
 .last-modified{font-size:11px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px;padding-top:4px}
 .field-group{display:flex;flex-direction:column;gap:6px}
 .field-label{font-size:11px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700}
+/* Notes autosave indicator */
+.notes-saved{font-size:10px;color:#6ee68b;opacity:0;transition:opacity 0.3s;font-style:italic}
 
 /* ── Drawing type multiselect ── */
 .drawing-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
@@ -420,12 +458,15 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 <!-- OVERLAY + DETAIL PANEL -->
 <div class="overlay" id="overlay"></div>
 <div class="detail-panel" id="detail-panel">
-  <div class="panel-header">
-    <div>
-      <div class="panel-title" id="panel-title-text"></div>
-      <div class="panel-code" id="panel-code-text"></div>
+  <div class="panel-hero" id="panel-hero">
+    <div class="panel-hero-top">
+      <div>
+        <div class="panel-title" id="panel-title-text"></div>
+        <div class="panel-code" id="panel-code-text"></div>
+      </div>
+      <button type="button" class="panel-close" id="panel-close">✕ Close</button>
     </div>
-    <button type="button" class="panel-close" id="panel-close">Close</button>
+    <div class="panel-hero-meta" id="panel-hero-meta"></div>
   </div>
   <div class="panel-body" id="panel-body"></div>
 </div>
@@ -550,7 +591,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 
       <!-- 7. Floor Construction Type -->
       <div class="field-group">
-        <div class="field-label">7. Floor Construction Type <span style="color:#ff8a80">*</span></div>
+        <div class="field-label">7. Floor Construction Type <span style="font-size:10px;color:var(--wsav-text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></div>
         <div class="radio-group">
           <label class="radio-opt" id="ro-solid"><input type="radio" name="floor" value="Solid Floor Construction"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Solid Floor Construction</span></label>
           <label class="radio-opt" id="ro-raised"><input type="radio" name="floor" value="Computer Raise Floor"/><div class="radio-dot"><div class="radio-dot-inner"></div></div><span class="radio-text">Computer Raise Floor</span></label>
@@ -783,7 +824,8 @@ function mapSP(item){
     created:item.Created?item.Created.substring(0,10):'',
     lastModifiedBy:item.LastModifiedBy||'',
     lastModifiedAt:item.LastModifiedAt||'',
-    files:[], folderUrl
+    files:[], folderUrl,
+    drawingsReady:item.DrawingsReady||false
   };
 }
 
@@ -803,6 +845,11 @@ async function spSave(req){
   await spMerge(`${SP_API}(${req.spId})`,{
     RequestStatus:req.status, Archived:req.archived,
     CADNotes:req.notes||'',
+    DrawingsReady:req.drawingsReady||false,
+    AssignedPM:req.pm||'', TechLead:req.lead||'',
+    ScopeOfWorks:req.scope||'', FloorType:req.floorType||'',
+    SalesType:req.sales||'', RequiredByDate:req.requiredBy||null,
+    Priority:req.priority||'P2',
     LastModifiedBy:req.lastModifiedBy||'',
     LastModifiedAt:req.lastModifiedAt||''
   });
@@ -1094,6 +1141,7 @@ function makeCard(req,isArchive){
     <div class="card-badges" id="badges-${req.spId||req.id}">
       <span class="prio-badge ${prioClass}">${esc(req.priority)}</span>
       ${req.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
+      ${req.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}
       ${dueBadge}
     </div>
     <div class="card-footer">
@@ -1170,79 +1218,165 @@ function openDetail(id){
   const r=state.requests.find(x=>(x.id===id||x.spId===id));
   if(!r) return;
   openDetailId=r.spId||r.id;
+
+  // Hero header
   document.getElementById('panel-title-text').textContent=r.projectName;
   document.getElementById('panel-code-text').textContent=r.projectCode;
-
   const sc=STATUS_CLASS[r.status]||'ss-design';
-  const floorShort=r.floorType==='Computer Raise Floor'?'Raised Floor':r.floorType==='Solid Floor Construction'?'Solid Floor':r.floorType;
+  const floorShort=r.floorType==='Computer Raise Floor'?'Raised Floor':r.floorType==='Solid Floor Construction'?'Solid Floor':(r.floorType||'');
+  const salesClass=r.sales==='Pre Sales'?'sales-pre':'sales-post';
+  const prioClass=r.priority==='P1'?'pb-p1':'pb-p2';
+
+  // Hero meta badges
+  const heroMeta=document.getElementById('panel-hero-meta');
+  heroMeta.innerHTML=`
+    <div class="card-status-wrap ${sc}" id="ps-wrap" style="flex-shrink:0">
+      <select class="card-status-select" id="ps-sel">
+        ${STATUSES.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+      <span class="card-status-arrow">▾</span>
+    </div>
+    <span class="prio-badge ${prioClass}">${esc(r.priority)}</span>
+    ${r.sales?`<span class="sales-badge ${salesClass}">${esc(r.sales)}</span>`:''}
+    ${r.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
+    ${r.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}`;
 
   const pb=document.getElementById('panel-body');
   pb.innerHTML=`
-    <!-- Status -->
-    <div>
+
+    <!-- ── Status save ── -->
+    <div class="panel-section">
       <div class="section-head">Status</div>
-      <div class="panel-status-row" style="margin-top:8px">
-        <div class="card-status-wrap ${sc}" id="ps-wrap">
-          <select class="card-status-select" id="ps-sel">
-            ${STATUSES.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}
-          </select>
-          <span class="card-status-arrow">▾</span>
+      <div class="panel-status-row">
+        <button type="button" class="btn-gold" id="ps-save" style="font-size:12px;padding:8px 18px">Save Status</button>
+        <span style="font-size:11px;color:var(--wsav-text-muted)">Change the dropdown above then save</span>
+      </div>
+    </div>
+
+    <!-- ── Drawings Ready toggle ── -->
+    <div class="panel-section">
+      <div class="section-head">CAD Team</div>
+      <div class="drawings-ready-toggle${r.drawingsReady?' active':''}" id="dr-toggle">
+        <div class="drt-label">
+          <div class="drt-title">Drawings Ready</div>
+          <div class="drt-sub">Mark when final drawings are issued and ready for the project team</div>
         </div>
-        <button type="button" class="btn-gold" id="ps-save" style="font-size:12px;padding:7px 16px">Save Status</button>
+        <div class="drt-switch"></div>
       </div>
     </div>
-    <!-- Details -->
-    <div>
-      <div class="section-head">Project Details</div>
-      <div class="detail-grid" style="margin-top:8px">
-        <span class="dk">Project Name</span><span class="dv">${esc(r.projectName)}</span>
-        <span class="dk">Project Code</span><span class="dv">${esc(r.projectCode)}</span>
-        <span class="dk">PM / POC</span><span class="dv">${esc(r.pm)}</span>
-        <span class="dk">Technical Lead</span><span class="dv">${esc(r.lead)}</span>
-        <span class="dk">Sales Type</span><span class="dv">${esc(r.sales)}</span>
-        <span class="dk">Floor Type</span><span class="dv">${esc(floorShort)}</span>
-        <span class="dk">Required By</span><span class="dv">${esc(fmtDate(r.requiredBy))}</span>
-        <span class="dk">Priority</span><span class="dv">${esc(r.priority)}</span>
-        <span class="dk">Raised By</span><span class="dv">${esc(r.createdBy||'—')}</span>
-        <span class="dk">Date Raised</span><span class="dv">${esc(r.created||'—')}</span>
-        ${r.drawingTypes&&r.drawingTypes.length?`<span class="dk">Drawing Type(s)</span><span class="dv">${esc(r.drawingTypes.join(', '))}</span>`:''}
-        ${r.revisionType?`<span class="dk">Request Type</span><span class="dv">${esc(r.revisionType==='Revision'&&r.revisionRef?`Revision — ${r.revisionRef}`:r.revisionType||'—')}</span>`:''}
+
+    <!-- ── Editable project details ── -->
+    <div class="panel-section">
+      <div class="section-head">
+        Project Details
+        <span style="font-size:10px;color:#4a7570;font-weight:400;text-transform:none;letter-spacing:0">Edit fields below and save</span>
+      </div>
+      <div class="panel-edit-grid">
+        <div class="panel-field full-width">
+          <div class="panel-field-label">Project Name</div>
+          <input class="panel-input" id="pe-proj-name" value="${esc(r.projectName)}" placeholder="Project name"/>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">Project Code</div>
+          <input class="panel-input" id="pe-proj-code" value="${esc(r.projectCode)}" placeholder="e.g. WAV-2025-001"/>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">Required By</div>
+          <input class="panel-date" type="date" id="pe-date" value="${esc(r.requiredBy||'')}"/>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">PM / POC</div>
+          <input class="panel-input" id="pe-pm" value="${esc(r.pm)}" placeholder="PM name or email"/>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">Technical Lead</div>
+          <input class="panel-input" id="pe-lead" value="${esc(r.lead)}" placeholder="Lead name or email"/>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">Priority</div>
+          <select class="panel-select" id="pe-priority">
+            <option value="P1"${r.priority==='P1'?' selected':''}>P1 — Critical / urgent</option>
+            <option value="P2"${r.priority==='P2'?' selected':''}>P2 — Standard priority</option>
+          </select>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">Sales Type</div>
+          <select class="panel-select" id="pe-sales">
+            <option value="Pre Sales"${r.sales==='Pre Sales'?' selected':''}>Pre Sales</option>
+            <option value="Post Sales"${r.sales==='Post Sales'?' selected':''}>Post Sales</option>
+          </select>
+        </div>
+        <div class="panel-field">
+          <div class="panel-field-label">Floor Type <span style="color:#4a7570;font-weight:400;font-size:9px;text-transform:none">(optional)</span></div>
+          <select class="panel-select" id="pe-floor">
+            <option value=""${!r.floorType?' selected':''}>— Not specified —</option>
+            <option value="Solid Floor Construction"${r.floorType==='Solid Floor Construction'?' selected':''}>Solid Floor</option>
+            <option value="Computer Raise Floor"${r.floorType==='Computer Raise Floor'?' selected':''}>Raised Floor</option>
+          </select>
+        </div>
+        <div class="panel-field full-width">
+          <div class="panel-field-label">Scope of Works</div>
+          <textarea class="panel-input" id="pe-scope" rows="3" style="resize:vertical;line-height:1.5" placeholder="Describe the scope…">${esc(r.scope||'')}</textarea>
+        </div>
+      </div>
+      <div class="panel-save-row">
+        <button type="button" class="btn-gold" id="pe-save" style="font-size:12px;padding:8px 20px">Save Changes</button>
       </div>
     </div>
-    ${r.scope?`<div><div class="section-head">Scope of Works</div><div style="font-size:13px;color:var(--wsav-offwhite);line-height:1.6;margin-top:8px">${esc(r.scope)}</div></div>`:''}
-    <!-- CAD Notes -->
-    <div>
-      <div class="section-head">CAD Team Notes</div>
-      <div class="panel-notes-area" style="margin-top:8px">
+
+    <!-- ── CAD Notes ── -->
+    <div class="panel-section">
+      <div class="section-head">
+        CAD Team Notes
+        <span class="notes-saved" id="notes-saved-indicator">✓ Saved</span>
+      </div>
+      <div class="panel-notes-area">
         <textarea id="dp-notes" placeholder="Internal notes, blockers, decisions, revision history…">${esc(r.notes||'')}</textarea>
       </div>
     </div>
-    <!-- Files -->
-    <div>
-      <div class="section-head">
-        <span>Files</span>
-        ${r.folderUrl?`<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--wsav-gold);text-decoration:none;font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Open Folder ↗</a>`:''}
+
+    <!-- ── Read-only info ── -->
+    <div class="panel-section">
+      <div class="section-head">Request Info</div>
+      <div class="detail-grid">
+        <span class="dk">Raised By</span><span class="dv">${esc(r.createdBy||'—')}</span>
+        <span class="dk">Date Raised</span><span class="dv">${esc(r.created||'—')}</span>
+        ${r.drawingTypes&&r.drawingTypes.length?`<span class="dk">Drawing Type(s)</span><span class="dv">${esc(r.drawingTypes.join(', '))}</span>`:''}
+        ${r.revisionType?`<span class="dk">Request Type</span><span class="dv">${esc(r.revisionType==='Revision'&&r.revisionRef?'Revision — '+r.revisionRef:r.revisionType)}</span>`:''}
       </div>
-      <div id="panel-files-list" style="margin-top:8px">
+    </div>
+
+    <!-- ── Files ── -->
+    <div class="panel-section">
+      <div class="section-head">
+        Files
+        ${r.folderUrl?`<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="font-size:10px;color:var(--wsav-gold);text-decoration:none;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Open Folder ↗</a>`:''}
+      </div>
+      <div id="panel-files-list">
         <div style="font-size:12px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px">
           <span class="sync-dot syncing" style="flex-shrink:0"></span> Loading files…
         </div>
       </div>
     </div>
-    <!-- Archive / Last modified -->
-    <div style="border-top:1px solid var(--wsav-border);padding-top:16px;display:flex;flex-direction:column;gap:10px">
-      <button type="button" class="archive-action-btn" id="dp-archive">${r.archived?'Restore From Archive':'Move To Archive'}</button>
-      <div class="last-modified" id="dp-last-modified">${modifiedHtml(r)}</div>
+
+    <!-- ── Actions ── -->
+    <div class="panel-section">
+      <div class="section-head">Actions</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button type="button" class="archive-action-btn" id="dp-archive">${r.archived?'Restore From Archive':'Move To Archive'}</button>
+        <div class="last-modified" id="dp-last-modified">${modifiedHtml(r)}</div>
+      </div>
     </div>
-    <!-- Danger Zone -->
-    <div style="margin-top:4px;border-top:1px solid rgba(139,0,0,0.25);padding-top:18px">
-      <div style="font-size:11px;color:#8aada9;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:10px">Danger Zone</div>
+
+    <!-- ── Danger Zone ── -->
+    <div class="panel-section" style="border-top:1px solid rgba(139,0,0,0.2)">
+      <div class="section-head" style="color:#ff8a80">Danger Zone</div>
       <div id="dp-delete-wrap">
-        <button type="button" id="dp-delete-reveal" style="background:none;border:1px solid rgba(139,0,0,0.4);border-radius:6px;color:#ff5555;font-size:12px;padding:7px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit">Delete Request…</button>
+        <button type="button" id="dp-delete-reveal" style="background:none;border:1px solid rgba(139,0,0,0.4);border-radius:6px;color:#ff5555;font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit">Delete Request…</button>
       </div>
     </div>`;
 
-  // Status select live style
+  // ── Status select live style + save ──
   const psSel=document.getElementById('ps-sel'), psWrap=document.getElementById('ps-wrap');
   psSel.addEventListener('change',function(){
     psWrap.className='card-status-wrap '+(STATUS_CLASS[this.value]||'ss-design');
@@ -1250,31 +1384,82 @@ function openDetail(id){
   document.getElementById('ps-save').addEventListener('click',function(){
     r.status=psSel.value;
     saveRequest(r); renderStats(); renderGrid();
-    closeDetail(); showToast('Status updated','success');
+    // Refresh hero badges
+    openDetail(r.spId||r.id);
+    showToast('Status updated','success');
   });
 
-  // Notes autosave
+  // ── Drawings-ready toggle ──
+  document.getElementById('dr-toggle').addEventListener('click',function(){
+    r.drawingsReady=!r.drawingsReady;
+    this.classList.toggle('active',r.drawingsReady);
+    // Update hero badge
+    const heroBadge=heroMeta.querySelector('.dr-badge');
+    if(r.drawingsReady&&!heroBadge){
+      const b=document.createElement('span'); b.className='dr-badge'; b.textContent='✓ Drawings Ready';
+      heroMeta.appendChild(b);
+    } else if(!r.drawingsReady&&heroBadge){
+      heroBadge.remove();
+    }
+    // Update card badge live
+    const badgeWrap=document.getElementById(`badges-${r.spId||r.id}`);
+    if(badgeWrap){
+      const existing=badgeWrap.querySelector('.dr-badge');
+      if(r.drawingsReady&&!existing){
+        const b=document.createElement('span'); b.className='dr-badge'; b.innerHTML='✓ Drawings Ready';
+        badgeWrap.appendChild(b);
+      } else if(!r.drawingsReady&&existing){ existing.remove(); }
+    }
+    saveRequest(r);
+    showToast(r.drawingsReady?'Drawings marked as ready':'Drawings Ready removed','success');
+  });
+
+  // ── Save editable fields ──
+  document.getElementById('pe-save').addEventListener('click',function(){
+    r.projectName=document.getElementById('pe-proj-name').value.trim()||r.projectName;
+    r.projectCode=document.getElementById('pe-proj-code').value.trim()||r.projectCode;
+    r.pm=document.getElementById('pe-pm').value.trim();
+    r.lead=document.getElementById('pe-lead').value.trim();
+    r.priority=document.getElementById('pe-priority').value;
+    r.sales=document.getElementById('pe-sales').value;
+    r.floorType=document.getElementById('pe-floor').value;
+    r.requiredBy=document.getElementById('pe-date').value;
+    r.scope=document.getElementById('pe-scope').value.trim();
+    saveRequest(r); renderStats(); renderGrid();
+    // Refresh panel header
+    document.getElementById('panel-title-text').textContent=r.projectName;
+    document.getElementById('panel-code-text').textContent=r.projectCode;
+    showToast('Changes saved','success');
+  });
+
+  // ── Notes autosave ──
   const notesEl=document.getElementById('dp-notes');
+  const notesSaved=document.getElementById('notes-saved-indicator');
   let notesTimer;
   notesEl.addEventListener('input',function(){
     r.notes=this.value;
     clearTimeout(notesTimer);
-    notesTimer=setTimeout(()=>{ saveRequest(r); },800);
+    notesSaved.style.opacity='0';
+    notesTimer=setTimeout(()=>{
+      saveRequest(r);
+      notesSaved.style.opacity='1';
+      setTimeout(()=>{ notesSaved.style.opacity='0'; },2000);
+    },800);
   });
 
-  // Archive toggle
+  // ── Archive toggle ──
   document.getElementById('dp-archive').addEventListener('click',function(){
     r.archived=!r.archived;
     saveRequest(r); renderStats(); renderGrid(); closeDetail();
     showToast(r.archived?'Request archived':'Request restored','success');
   });
 
-  // Delete reveal
+  // ── Delete reveal ──
   document.getElementById('dp-delete-reveal').addEventListener('click',function(){
     const wrap=document.getElementById('dp-delete-wrap');
     wrap.innerHTML=`<div style="background:rgba(139,0,0,0.1);border:1px solid rgba(139,0,0,0.35);border-radius:8px;padding:14px">
       <div style="font-size:12px;color:#ff8a80;margin-bottom:10px;line-height:1.5">This will permanently delete <strong style="color:#ff5555">${esc(r.projectName)}</strong> and cannot be undone.<br/>Type your name to confirm.</div>
-      <input class="wsav-input" type="text" id="dp-delete-name" placeholder="Your name…" style="width:100%;margin-bottom:10px"/>
+      <input class="panel-input" type="text" id="dp-delete-name" placeholder="Your name…" style="width:100%;margin-bottom:10px"/>
       <div style="display:flex;gap:8px">
         <button type="button" id="dp-delete-cancel" style="flex:1;background:none;border:1px solid var(--wsav-border-light);border-radius:6px;color:var(--wsav-text-muted);font-size:12px;padding:7px 14px;cursor:pointer;font-family:inherit">Cancel</button>
         <button type="button" id="dp-delete-confirm-btn" style="flex:1;background:rgba(139,0,0,0.2);border:1px solid rgba(139,0,0,0.5);border-radius:6px;color:#ff5555;font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;opacity:0.4;pointer-events:none;font-family:inherit">Delete Request</button>
@@ -1316,7 +1501,7 @@ function openDetail(id){
     });
   });
 
-  // Load files
+  // ── Load files ──
   if(spEnabled&&r.projectCode&&r.projectCode!=='—'){
     spGetFolderFiles(r.projectCode).then(files=>{
       const c=document.getElementById('panel-files-list'); if(!c) return;
@@ -1533,7 +1718,7 @@ document.getElementById('raise-submit').addEventListener('click',async function(
   const drawingTypes=Array.from(document.querySelectorAll('.dt-opt.selected'))
     .map(o=>o.dataset.value).filter(Boolean);
 
-  if(!projectName||!projectCode||!pm||!lead||!floorType||!sales||!requiredBy||!priority||!revisionType||!drawingTypes.length){
+  if(!projectName||!projectCode||!pm||!lead||!sales||!requiredBy||!priority||!revisionType||!drawingTypes.length){
     showToast('Please complete all required fields, including Request Type and at least one Drawing Type.','error'); return;
   }
 
