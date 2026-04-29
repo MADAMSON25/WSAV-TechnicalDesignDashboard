@@ -214,25 +214,28 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 /* ── Detail panel ── */
 .overlay{display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,0.55)}
 .overlay.open{display:block}
-.detail-panel{display:none;position:fixed;top:0;right:0;width:min(520px,100vw);height:100vh;background:var(--wsav-dark);border-left:1px solid var(--wsav-border);z-index:100;overflow-y:auto;flex-direction:column}
-.detail-panel.open{display:flex}
-.panel-header{background:var(--wsav-dark2);padding:1.25rem 1.5rem;border-bottom:1px solid var(--wsav-border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-shrink:0}
+.detail-panel{display:none;position:fixed;top:0;right:0;width:min(480px,100vw);height:100vh;background:var(--wsav-dark);border-left:1px solid var(--wsav-border);z-index:100;overflow-y:auto}
+.detail-panel.open{display:block}
+.panel-header{background:var(--wsav-dark2);padding:1.25rem 1.5rem;border-bottom:1px solid var(--wsav-border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .panel-title{font-size:15px;font-weight:700;color:var(--wsav-white);line-height:1.4;margin-top:2px}
 .panel-code{font-size:12px;color:var(--wsav-gold);margin-top:4px;font-weight:600}
 .panel-close{background:none;border:1px solid var(--wsav-border);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--wsav-text-muted);white-space:nowrap;flex-shrink:0;font-family:inherit}
 .panel-close:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold)}
-.panel-body{padding:1.5rem;flex:1;display:flex;flex-direction:column;gap:20px}
+.panel-body{padding:1.5rem;display:flex;flex-direction:column;gap:20px}
 .section-head{font-size:11px;color:var(--wsav-gold);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;border-bottom:1px solid var(--wsav-border);padding-bottom:7px;display:flex;align-items:center;justify-content:space-between}
 .detail-grid{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;align-items:start}
 .dk{font-size:12px;color:var(--wsav-text-muted);padding-top:1px}
 .dv{font-size:12px;color:var(--wsav-offwhite);word-break:break-word}
 .panel-status-row{display:flex;align-items:center;gap:10px}
-.panel-notes-area textarea{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:9px 12px;font-family:inherit;width:100%;min-height:80px;resize:vertical;line-height:1.5}
-.panel-notes-area textarea:focus{outline:none;border-color:var(--wsav-gold-muted)}
-.panel-notes-area textarea::placeholder{color:var(--wsav-text-muted)}
-.last-modified{font-size:11px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px;padding-top:4px}
+.notes-label{font-size:11px;font-weight:700;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.notes-area textarea,.panel-notes-area textarea{background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:6px;color:var(--wsav-white);font-size:13px;padding:9px 12px;font-family:inherit;width:100%;min-height:80px;resize:vertical;line-height:1.5}
+.notes-area textarea:focus,.panel-notes-area textarea:focus{outline:none;border-color:var(--wsav-gold-muted)}
+.notes-area textarea::placeholder,.panel-notes-area textarea::placeholder{color:var(--wsav-text-muted)}
 .archive-action-btn{background:none;border:1px solid var(--wsav-border-light);border-radius:6px;color:var(--wsav-text-muted);font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit}
 .archive-action-btn:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold)}
+.last-modified{font-size:11px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px;padding-top:4px}
+.field-group{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:11px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700}
 
 /* ── Export modal ── */
 .ex-chip{font-size:11px;padding:5px 14px;border:1px solid var(--wsav-border);border-radius:20px;background:none;color:var(--wsav-text-muted);cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;font-family:inherit}
@@ -409,7 +412,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
         </div>
         <div class="field-group">
           <div class="field-label">Project Code <span style="color:#ff8a80">*</span></div>
-          <input type="text" class="form-input" id="f-proj-code" placeholder="e.g. WAV-2025-001"/>
+          <input type="text" class="form-input" id="f-proj-code" placeholder="e.g. 250001"/>
         </div>
       </div>
       <div class="field-group">
@@ -1073,6 +1076,13 @@ function openDetail(id){
     <div style="border-top:1px solid var(--wsav-border);padding-top:16px;display:flex;flex-direction:column;gap:10px">
       <button type="button" class="archive-action-btn" id="dp-archive">${r.archived?'Restore From Archive':'Move To Archive'}</button>
       <div class="last-modified" id="dp-last-modified">${modifiedHtml(r)}</div>
+    </div>
+    <!-- Danger Zone -->
+    <div style="margin-top:4px;border-top:1px solid rgba(139,0,0,0.25);padding-top:18px">
+      <div style="font-size:11px;color:#8aada9;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:10px">Danger Zone</div>
+      <div id="dp-delete-wrap">
+        <button type="button" id="dp-delete-reveal" style="background:none;border:1px solid rgba(139,0,0,0.4);border-radius:6px;color:#ff5555;font-size:12px;padding:7px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit">Delete Request…</button>
+      </div>
     </div>`;
 
   // Status select live style
@@ -1100,6 +1110,53 @@ function openDetail(id){
     r.archived=!r.archived;
     saveRequest(r); renderStats(); renderGrid(); closeDetail();
     showToast(r.archived?'Request archived':'Request restored','success');
+  });
+
+  // Delete reveal
+  document.getElementById('dp-delete-reveal').addEventListener('click',function(){
+    const wrap=document.getElementById('dp-delete-wrap');
+    wrap.innerHTML=`<div style="background:rgba(139,0,0,0.1);border:1px solid rgba(139,0,0,0.35);border-radius:8px;padding:14px">
+      <div style="font-size:12px;color:#ff8a80;margin-bottom:10px;line-height:1.5">This will permanently delete <strong style="color:#ff5555">${esc(r.projectName)}</strong> and cannot be undone.<br/>Type your name to confirm.</div>
+      <input class="wsav-input" type="text" id="dp-delete-name" placeholder="Your name…" style="width:100%;margin-bottom:10px"/>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="dp-delete-cancel" style="flex:1;background:none;border:1px solid var(--wsav-border-light);border-radius:6px;color:var(--wsav-text-muted);font-size:12px;padding:7px 14px;cursor:pointer;font-family:inherit">Cancel</button>
+        <button type="button" id="dp-delete-confirm-btn" style="flex:1;background:rgba(139,0,0,0.2);border:1px solid rgba(139,0,0,0.5);border-radius:6px;color:#ff5555;font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;opacity:0.4;pointer-events:none;font-family:inherit">Delete Request</button>
+      </div>
+    </div>`;
+    const nameInput=document.getElementById('dp-delete-name');
+    const confirmBtn=document.getElementById('dp-delete-confirm-btn');
+    document.getElementById('dp-delete-cancel').addEventListener('click',()=>{ openDetail(r.spId||r.id); });
+    nameInput.addEventListener('input',function(){
+      const valid=this.value.trim().length>=2;
+      confirmBtn.style.opacity=valid?'1':'0.4';
+      confirmBtn.style.pointerEvents=valid?'auto':'none';
+    });
+    confirmBtn.addEventListener('click',async function(){
+      if(nameInput.value.trim().length<2) return;
+      confirmBtn.disabled=true; confirmBtn.textContent='Deleting…';
+      try{
+        if(spEnabled&&(r.spId)){
+          try{ await spDelete(`${SP_API}(${r.spId})`); }
+          catch(e){
+            if(!e.message||!e.message.includes('404')){
+              confirmBtn.disabled=false; confirmBtn.textContent='Delete Request';
+              const errEl=document.createElement('div');
+              errEl.style.cssText='font-size:11px;color:#ff8a80;margin-top:8px;line-height:1.5';
+              errEl.textContent='SharePoint delete failed: '+e.message+' — request was not deleted.';
+              confirmBtn.parentElement.after(errEl);
+              return;
+            }
+          }
+        }
+        const idx=state.requests.findIndex(x=>(x.id===r.id||x.spId===r.spId));
+        if(idx>-1) state.requests.splice(idx,1);
+        saveLocal(); closeDetail(); renderStats(); renderGrid();
+        showToast('Request deleted','success');
+      }catch(e){
+        confirmBtn.disabled=false; confirmBtn.textContent='Delete Request';
+        showToast('Delete failed: '+e.message,'error');
+      }
+    });
   });
 
   // Load files
