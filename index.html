@@ -423,11 +423,6 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
       <option value="added-asc">Sort: Oldest First</option>
       <option value="priority">Sort: P1 First</option>
     </select>
-    <select class="wsav-input" id="filter-floor" style="font-size:12px;padding:9px 12px;cursor:pointer">
-      <option value="">All Floor Types</option>
-      <option value="Solid Floor Construction">Solid Floor</option>
-      <option value="Computer Raise Floor">Raised Floor</option>
-    </select>
     <select class="wsav-input" id="filter-sales" style="font-size:12px;padding:9px 12px;cursor:pointer">
       <option value="">Pre &amp; Post Sales</option>
       <option value="Pre Sales">Pre Sales</option>
@@ -564,11 +559,6 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
             <input type="checkbox" name="drawingType" value="Conceptual Design"/>
             <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             <div><div class="dt-text">Conceptual Design</div><div class="dt-badge">Pre-sales visualisation</div></div>
-          </label>
-          <label class="dt-opt" data-value="Equipment Schedule">
-            <input type="checkbox" name="drawingType" value="Equipment Schedule"/>
-            <div class="dt-check"><svg class="dt-check-inner" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#082520" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <div><div class="dt-text">Equipment Schedule</div><div class="dt-badge">BOM / kit list</div></div>
           </label>
           <label class="dt-opt" data-value="Network / IP Diagram">
             <input type="checkbox" name="drawingType" value="Network / IP Diagram"/>
@@ -1174,7 +1164,6 @@ function renderGrid(){
   let active=state.requests.filter(r=>{
     if(r.archived) return false;
     if(state.filter!=='all'&&r.status!==state.filter) return false;
-    if(state.filterFloor&&r.floorType!==state.filterFloor) return false;
     if(state.filterSales&&r.sales!==state.filterSales) return false;
     if(q&&!r.projectName.toLowerCase().includes(q)&&!r.projectCode.toLowerCase().includes(q)&&!r.pm.toLowerCase().includes(q)&&!r.lead.toLowerCase().includes(q)) return false;
     return true;
@@ -1515,7 +1504,6 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
 });
 document.getElementById('search').addEventListener('input',function(){ state.search=this.value; renderGrid(); });
 document.getElementById('sort-select').addEventListener('change',function(){ state.sortMode=this.value; renderGrid(); });
-document.getElementById('filter-floor').addEventListener('change',function(){ state.filterFloor=this.value; renderGrid(); });
 document.getElementById('filter-sales').addEventListener('change',function(){ state.filterSales=this.value; renderGrid(); });
 document.getElementById('archive-toggle').addEventListener('click',function(){
   state.archiveOpen=!state.archiveOpen;
@@ -1578,11 +1566,9 @@ function updateDTCount(){
   countEl.style.display='block';
   countEl.textContent=`${selected.length} drawing type${selected.length>1?'s':''} selected`;
 }
-document.querySelectorAll('.dt-opt').forEach(opt=>{
-  opt.addEventListener('click',()=>{
-    opt.classList.toggle('selected');
-    const cb=opt.querySelector('input[type=checkbox]');
-    if(cb) cb.checked=opt.classList.contains('selected');
+document.querySelectorAll('.dt-opt input[type=checkbox]').forEach(cb=>{
+  cb.addEventListener('change',()=>{
+    cb.closest('.dt-opt').classList.toggle('selected', cb.checked);
     updateDTCount();
   });
 });
