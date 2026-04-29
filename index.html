@@ -468,7 +468,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
     </div>
     <div class="panel-hero-meta" id="panel-hero-meta"></div>
   </div>
-  <div class="panel-body" id="panel-body"></div>
+  <div class="panel-body" id="panel-content"></div>
 </div>
 
 <!-- RAISE REQUEST MODAL -->
@@ -1218,19 +1218,20 @@ function openDetail(id){
   const r=state.requests.find(x=>(x.id===id||x.spId===id));
   if(!r) return;
   openDetailId=r.spId||r.id;
-
-  // Hero header
   document.getElementById('panel-title-text').textContent=r.projectName;
   document.getElementById('panel-code-text').textContent=r.projectCode;
-  const sc=STATUS_CLASS[r.status]||'ss-design';
-  const floorShort=r.floorType==='Computer Raise Floor'?'Raised Floor':r.floorType==='Solid Floor Construction'?'Solid Floor':(r.floorType||'');
-  const salesClass=r.sales==='Pre Sales'?'sales-pre':'sales-post';
-  const prioClass=r.priority==='P1'?'pb-p1':'pb-p2';
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+  renderPanelContent(r);
+}
 
-  // Hero meta badges
-  const heroMeta=document.getElementById('panel-hero-meta');
-  heroMeta.innerHTML=`
-    <div class="card-status-wrap ${sc}" id="ps-wrap" style="flex-shrink:0">
+function renderPanelContent(r){
+  // ── Hero meta badges ──
+  const sc=STATUS_CLASS[r.status]||'ss-design';
+  const prioClass=r.priority==='P1'?'pb-p1':'pb-p2';
+  const salesClass=r.sales==='Pre Sales'?'sales-pre':'sales-post';
+  document.getElementById('panel-hero-meta').innerHTML=`
+    <div class="card-status-wrap ${sc}" id="ps-wrap">
       <select class="card-status-select" id="ps-sel">
         ${STATUSES.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}
       </select>
@@ -1239,21 +1240,23 @@ function openDetail(id){
     <span class="prio-badge ${prioClass}">${esc(r.priority)}</span>
     ${r.sales?`<span class="sales-badge ${salesClass}">${esc(r.sales)}</span>`:''}
     ${r.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
-    ${r.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}`;
+    ${r.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}
+    <span id="panel-autosave" style="font-size:10px;color:#6ee68b;opacity:0;transition:opacity 0.4s;font-style:italic">✓ Saved</span>`;
 
-  const pb=document.getElementById('panel-body');
-  pb.innerHTML=`
+  // ── Status select: live style ──
+  const psSel=document.getElementById('ps-sel');
+  const psWrap=document.getElementById('ps-wrap');
+  psSel.onchange=function(){
+    psWrap.className='card-status-wrap '+(STATUS_CLASS[this.value]||'ss-design');
+    r.status=this.value;
+    saveRequest(r); renderStats(); renderGrid(); showAutosaved();
+  };
 
-    <!-- ── Status save ── -->
-    <div class="panel-section">
-      <div class="section-head">Status</div>
-      <div class="panel-status-row">
-        <button type="button" class="btn-gold" id="ps-save" style="font-size:12px;padding:8px 18px">Save Status</button>
-        <span style="font-size:11px;color:var(--wsav-text-muted)">Change the dropdown above then save</span>
-      </div>
-    </div>
+  // ── Panel body ──
+  const c=document.getElementById('panel-content');
+  c.innerHTML=`
 
-    <!-- ── Drawings Ready toggle ── -->
+    <!-- Drawings Ready -->
     <div class="panel-section">
       <div class="section-head">CAD Team</div>
       <div class="drawings-ready-toggle${r.drawingsReady?' active':''}" id="dr-toggle">
@@ -1265,50 +1268,49 @@ function openDetail(id){
       </div>
     </div>
 
-    <!-- ── Editable project details ── -->
+    <!-- Editable project details -->
     <div class="panel-section">
-      <div class="section-head">
-        Project Details
-        <span style="font-size:10px;color:#4a7570;font-weight:400;text-transform:none;letter-spacing:0">Edit fields below and save</span>
+      <div class="section-head">Project Details
+        <span style="font-size:10px;color:#4a7570;font-weight:400;text-transform:none;letter-spacing:0">Changes save automatically</span>
       </div>
       <div class="panel-edit-grid">
         <div class="panel-field full-width">
           <div class="panel-field-label">Project Name</div>
-          <input class="panel-input" id="pe-proj-name" value="${esc(r.projectName)}" placeholder="Project name"/>
+          <input class="panel-input" type="text" id="dp-name" value="${esc(r.projectName)}" placeholder="Project name"/>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">Project Code</div>
-          <input class="panel-input" id="pe-proj-code" value="${esc(r.projectCode)}" placeholder="e.g. WAV-2025-001"/>
+          <input class="panel-input" type="text" id="dp-code" value="${esc(r.projectCode)}" placeholder="e.g. WAV-2025-001"/>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">Required By</div>
-          <input class="panel-date" type="date" id="pe-date" value="${esc(r.requiredBy||'')}"/>
+          <input class="panel-date" type="date" id="dp-due" value="${esc(r.requiredBy||'')}"/>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">PM / POC</div>
-          <input class="panel-input" id="pe-pm" value="${esc(r.pm)}" placeholder="PM name or email"/>
+          <input class="panel-input" type="text" id="dp-pm" value="${esc(r.pm)}" placeholder="PM name or email"/>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">Technical Lead</div>
-          <input class="panel-input" id="pe-lead" value="${esc(r.lead)}" placeholder="Lead name or email"/>
+          <input class="panel-input" type="text" id="dp-lead" value="${esc(r.lead)}" placeholder="Lead name or email"/>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">Priority</div>
-          <select class="panel-select" id="pe-priority">
+          <select class="panel-select" id="dp-priority">
             <option value="P1"${r.priority==='P1'?' selected':''}>P1 — Critical / urgent</option>
             <option value="P2"${r.priority==='P2'?' selected':''}>P2 — Standard priority</option>
           </select>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">Sales Type</div>
-          <select class="panel-select" id="pe-sales">
+          <select class="panel-select" id="dp-sales">
             <option value="Pre Sales"${r.sales==='Pre Sales'?' selected':''}>Pre Sales</option>
             <option value="Post Sales"${r.sales==='Post Sales'?' selected':''}>Post Sales</option>
           </select>
         </div>
         <div class="panel-field">
           <div class="panel-field-label">Floor Type <span style="color:#4a7570;font-weight:400;font-size:9px;text-transform:none">(optional)</span></div>
-          <select class="panel-select" id="pe-floor">
+          <select class="panel-select" id="dp-floor">
             <option value=""${!r.floorType?' selected':''}>— Not specified —</option>
             <option value="Solid Floor Construction"${r.floorType==='Solid Floor Construction'?' selected':''}>Solid Floor</option>
             <option value="Computer Raise Floor"${r.floorType==='Computer Raise Floor'?' selected':''}>Raised Floor</option>
@@ -1316,26 +1318,20 @@ function openDetail(id){
         </div>
         <div class="panel-field full-width">
           <div class="panel-field-label">Scope of Works</div>
-          <textarea class="panel-input" id="pe-scope" rows="3" style="resize:vertical;line-height:1.5" placeholder="Describe the scope…">${esc(r.scope||'')}</textarea>
+          <textarea class="panel-input" id="dp-scope" rows="3" style="resize:vertical;line-height:1.5" placeholder="Describe the scope…">${esc(r.scope||'')}</textarea>
         </div>
-      </div>
-      <div class="panel-save-row">
-        <button type="button" class="btn-gold" id="pe-save" style="font-size:12px;padding:8px 20px">Save Changes</button>
       </div>
     </div>
 
-    <!-- ── CAD Notes ── -->
+    <!-- CAD Notes -->
     <div class="panel-section">
-      <div class="section-head">
-        CAD Team Notes
-        <span class="notes-saved" id="notes-saved-indicator">✓ Saved</span>
-      </div>
+      <div class="section-head">CAD Team Notes</div>
       <div class="panel-notes-area">
         <textarea id="dp-notes" placeholder="Internal notes, blockers, decisions, revision history…">${esc(r.notes||'')}</textarea>
       </div>
     </div>
 
-    <!-- ── Read-only info ── -->
+    <!-- Request info (read-only) -->
     <div class="panel-section">
       <div class="section-head">Request Info</div>
       <div class="detail-grid">
@@ -1346,10 +1342,9 @@ function openDetail(id){
       </div>
     </div>
 
-    <!-- ── Files ── -->
+    <!-- Files -->
     <div class="panel-section">
-      <div class="section-head">
-        Files
+      <div class="section-head">Files
         ${r.folderUrl?`<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="font-size:10px;color:var(--wsav-gold);text-decoration:none;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Open Folder ↗</a>`:''}
       </div>
       <div id="panel-files-list">
@@ -1359,16 +1354,16 @@ function openDetail(id){
       </div>
     </div>
 
-    <!-- ── Actions ── -->
+    <!-- Actions -->
     <div class="panel-section">
       <div class="section-head">Actions</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <button type="button" class="archive-action-btn" id="dp-archive">${r.archived?'Restore From Archive':'Move To Archive'}</button>
-        <div class="last-modified" id="dp-last-modified">${modifiedHtml(r)}</div>
+        <div id="dp-last-modified" style="font-size:11px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px">${modifiedHtml(r)}</div>
       </div>
     </div>
 
-    <!-- ── Danger Zone ── -->
+    <!-- Danger Zone -->
     <div class="panel-section" style="border-top:1px solid rgba(139,0,0,0.2)">
       <div class="section-head" style="color:#ff8a80">Danger Zone</div>
       <div id="dp-delete-wrap">
@@ -1376,86 +1371,71 @@ function openDetail(id){
       </div>
     </div>`;
 
-  // ── Status select live style + save ──
-  const psSel=document.getElementById('ps-sel'), psWrap=document.getElementById('ps-wrap');
-  psSel.addEventListener('change',function(){
-    psWrap.className='card-status-wrap '+(STATUS_CLASS[this.value]||'ss-design');
-  });
-  document.getElementById('ps-save').addEventListener('click',function(){
-    r.status=psSel.value;
-    saveRequest(r); renderStats(); renderGrid();
-    // Refresh hero badges
-    openDetail(r.spId||r.id);
-    showToast('Status updated','success');
-  });
+  // ── Autosave helper ──
+  function flashSaved(){
+    const el=document.getElementById('panel-autosave'); if(!el) return;
+    el.style.opacity='1'; clearTimeout(flashSaved._t);
+    flashSaved._t=setTimeout(()=>{ el.style.opacity='0'; },2000);
+  }
+  function saveFields(){
+    const name=document.getElementById('dp-name').value.trim();
+    const code=document.getElementById('dp-code').value.trim();
+    if(name) r.projectName=name;
+    if(code) r.projectCode=code;
+    r.pm=document.getElementById('dp-pm').value.trim();
+    r.lead=document.getElementById('dp-lead').value.trim();
+    r.requiredBy=document.getElementById('dp-due').value;
+    r.priority=document.getElementById('dp-priority').value;
+    r.sales=document.getElementById('dp-sales').value;
+    r.floorType=document.getElementById('dp-floor').value;
+    r.scope=document.getElementById('dp-scope').value.trim();
+    // Update panel header live
+    if(name){ document.getElementById('panel-title-text').textContent=r.projectName; }
+    if(code){ document.getElementById('panel-code-text').textContent=r.projectCode; }
+    saveRequest(r); renderStats(); renderGrid(); flashSaved();
+  }
 
-  // ── Drawings-ready toggle ──
-  document.getElementById('dr-toggle').addEventListener('click',function(){
+  // Text inputs — debounced oninput (matches Project Dashboard dp-name pattern)
+  let editTimer;
+  document.getElementById('dp-name').oninput=function(){ if(!this.value.trim()) return; document.getElementById('panel-title-text').textContent=this.value; clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
+  document.getElementById('dp-name').onblur=function(){ if(!this.value.trim()){this.value=r.projectName;return;} clearTimeout(editTimer); saveFields(); };
+  document.getElementById('dp-code').oninput=function(){ if(!this.value.trim()) return; document.getElementById('panel-code-text').textContent=this.value; clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
+  document.getElementById('dp-pm').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
+  document.getElementById('dp-lead').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
+  document.getElementById('dp-scope').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
+  // Selects and date — save immediately on change
+  document.getElementById('dp-due').onchange=saveFields;
+  document.getElementById('dp-priority').onchange=saveFields;
+  document.getElementById('dp-sales').onchange=saveFields;
+  document.getElementById('dp-floor').onchange=saveFields;
+
+  // Notes autosave
+  let notesTimer;
+  document.getElementById('dp-notes').oninput=function(){ r.notes=this.value; clearTimeout(notesTimer); notesTimer=setTimeout(()=>{ saveRequest(r); flashSaved(); },800); };
+
+  // Drawings-ready toggle
+  document.getElementById('dr-toggle').onclick=function(){
     r.drawingsReady=!r.drawingsReady;
     this.classList.toggle('active',r.drawingsReady);
     // Update hero badge
-    const heroBadge=heroMeta.querySelector('.dr-badge');
-    if(r.drawingsReady&&!heroBadge){
-      const b=document.createElement('span'); b.className='dr-badge'; b.textContent='✓ Drawings Ready';
-      heroMeta.appendChild(b);
-    } else if(!r.drawingsReady&&heroBadge){
-      heroBadge.remove();
-    }
+    const heroDR=document.querySelector('#panel-hero-meta .dr-badge');
+    if(r.drawingsReady&&!heroDR){ const b=document.createElement('span'); b.className='dr-badge'; b.textContent='✓ Drawings Ready'; document.getElementById('panel-autosave').before(b); }
+    else if(!r.drawingsReady&&heroDR){ heroDR.remove(); }
     // Update card badge live
-    const badgeWrap=document.getElementById(`badges-${r.spId||r.id}`);
-    if(badgeWrap){
-      const existing=badgeWrap.querySelector('.dr-badge');
-      if(r.drawingsReady&&!existing){
-        const b=document.createElement('span'); b.className='dr-badge'; b.innerHTML='✓ Drawings Ready';
-        badgeWrap.appendChild(b);
-      } else if(!r.drawingsReady&&existing){ existing.remove(); }
-    }
-    saveRequest(r);
-    showToast(r.drawingsReady?'Drawings marked as ready':'Drawings Ready removed','success');
-  });
+    const cardBadges=document.getElementById(`badges-${r.spId||r.id}`);
+    if(cardBadges){ const ex=cardBadges.querySelector('.dr-badge'); if(r.drawingsReady&&!ex){const b=document.createElement('span');b.className='dr-badge';b.textContent='✓ Drawings Ready';cardBadges.appendChild(b);}else if(!r.drawingsReady&&ex){ex.remove();} }
+    saveRequest(r); flashSaved();
+  };
 
-  // ── Save editable fields ──
-  document.getElementById('pe-save').addEventListener('click',function(){
-    r.projectName=document.getElementById('pe-proj-name').value.trim()||r.projectName;
-    r.projectCode=document.getElementById('pe-proj-code').value.trim()||r.projectCode;
-    r.pm=document.getElementById('pe-pm').value.trim();
-    r.lead=document.getElementById('pe-lead').value.trim();
-    r.priority=document.getElementById('pe-priority').value;
-    r.sales=document.getElementById('pe-sales').value;
-    r.floorType=document.getElementById('pe-floor').value;
-    r.requiredBy=document.getElementById('pe-date').value;
-    r.scope=document.getElementById('pe-scope').value.trim();
-    saveRequest(r); renderStats(); renderGrid();
-    // Refresh panel header
-    document.getElementById('panel-title-text').textContent=r.projectName;
-    document.getElementById('panel-code-text').textContent=r.projectCode;
-    showToast('Changes saved','success');
-  });
-
-  // ── Notes autosave ──
-  const notesEl=document.getElementById('dp-notes');
-  const notesSaved=document.getElementById('notes-saved-indicator');
-  let notesTimer;
-  notesEl.addEventListener('input',function(){
-    r.notes=this.value;
-    clearTimeout(notesTimer);
-    notesSaved.style.opacity='0';
-    notesTimer=setTimeout(()=>{
-      saveRequest(r);
-      notesSaved.style.opacity='1';
-      setTimeout(()=>{ notesSaved.style.opacity='0'; },2000);
-    },800);
-  });
-
-  // ── Archive toggle ──
-  document.getElementById('dp-archive').addEventListener('click',function(){
+  // Archive
+  document.getElementById('dp-archive').onclick=function(){
     r.archived=!r.archived;
     saveRequest(r); renderStats(); renderGrid(); closeDetail();
     showToast(r.archived?'Request archived':'Request restored','success');
-  });
+  };
 
-  // ── Delete reveal ──
-  document.getElementById('dp-delete-reveal').addEventListener('click',function(){
+  // Delete reveal
+  document.getElementById('dp-delete-reveal').onclick=function(){
     const wrap=document.getElementById('dp-delete-wrap');
     wrap.innerHTML=`<div style="background:rgba(139,0,0,0.1);border:1px solid rgba(139,0,0,0.35);border-radius:8px;padding:14px">
       <div style="font-size:12px;color:#ff8a80;margin-bottom:10px;line-height:1.5">This will permanently delete <strong style="color:#ff5555">${esc(r.projectName)}</strong> and cannot be undone.<br/>Type your name to confirm.</div>
@@ -1467,13 +1447,9 @@ function openDetail(id){
     </div>`;
     const nameInput=document.getElementById('dp-delete-name');
     const confirmBtn=document.getElementById('dp-delete-confirm-btn');
-    document.getElementById('dp-delete-cancel').addEventListener('click',()=>{ openDetail(r.spId||r.id); });
-    nameInput.addEventListener('input',function(){
-      const valid=this.value.trim().length>=2;
-      confirmBtn.style.opacity=valid?'1':'0.4';
-      confirmBtn.style.pointerEvents=valid?'auto':'none';
-    });
-    confirmBtn.addEventListener('click',async function(){
+    document.getElementById('dp-delete-cancel').onclick=function(){ renderPanelContent(r); };
+    nameInput.oninput=function(){ const v=this.value.trim().length>=2; confirmBtn.style.opacity=v?'1':'0.4'; confirmBtn.style.pointerEvents=v?'auto':'none'; };
+    confirmBtn.onclick=async function(){
       if(nameInput.value.trim().length<2) return;
       confirmBtn.disabled=true; confirmBtn.textContent='Deleting…';
       try{
@@ -1482,11 +1458,9 @@ function openDetail(id){
           catch(e){
             if(!e.message||!e.message.includes('404')){
               confirmBtn.disabled=false; confirmBtn.textContent='Delete Request';
-              const errEl=document.createElement('div');
-              errEl.style.cssText='font-size:11px;color:#ff8a80;margin-top:8px;line-height:1.5';
+              const errEl=document.createElement('div'); errEl.style.cssText='font-size:11px;color:#ff8a80;margin-top:8px;line-height:1.5';
               errEl.textContent='SharePoint delete failed: '+e.message+' — request was not deleted.';
-              confirmBtn.parentElement.after(errEl);
-              return;
+              confirmBtn.parentElement.after(errEl); return;
             }
           }
         }
@@ -1494,19 +1468,16 @@ function openDetail(id){
         if(idx>-1) state.requests.splice(idx,1);
         saveLocal(); closeDetail(); renderStats(); renderGrid();
         showToast('Request deleted','success');
-      }catch(e){
-        confirmBtn.disabled=false; confirmBtn.textContent='Delete Request';
-        showToast('Delete failed: '+e.message,'error');
-      }
-    });
-  });
+      }catch(e){ confirmBtn.disabled=false; confirmBtn.textContent='Delete Request'; showToast('Delete failed: '+e.message,'error'); }
+    };
+  };
 
-  // ── Load files ──
+  // Load files
   if(spEnabled&&r.projectCode&&r.projectCode!=='—'){
     spGetFolderFiles(r.projectCode).then(files=>{
-      const c=document.getElementById('panel-files-list'); if(!c) return;
-      if(!files.length){ c.innerHTML=`<div style="font-size:12px;color:var(--wsav-text-muted)">No files uploaded yet.</div>`; return; }
-      c.innerHTML=files.map(f=>{
+      const fc=document.getElementById('panel-files-list'); if(!fc) return;
+      if(!files.length){ fc.innerHTML=`<div style="font-size:12px;color:var(--wsav-text-muted)">No files uploaded yet.</div>`; return; }
+      fc.innerHTML=files.map(f=>{
         const url=`${SP_SITE}/_layouts/15/download.aspx?SourceUrl=${encodeURIComponent(f.ServerRelativeUrl)}`;
         const mod=f.TimeLastModified?new Date(f.TimeLastModified).toLocaleDateString('en-GB'):'';
         return `<div class="file-item" style="margin-bottom:5px">
@@ -1516,15 +1487,13 @@ function openDetail(id){
           <a href="${esc(url)}" target="_blank" rel="noopener" style="color:var(--wsav-text-muted);font-size:13px;text-decoration:none;flex-shrink:0" title="Download">↓</a>
         </div>`;
       }).join('');
-    }).catch(()=>{ const c=document.getElementById('panel-files-list'); if(c) c.innerHTML=`<div style="font-size:12px;color:var(--wsav-text-muted)">Could not load files.</div>`; });
+    }).catch(()=>{ const fc=document.getElementById('panel-files-list'); if(fc) fc.innerHTML=`<div style="font-size:12px;color:var(--wsav-text-muted)">Could not load files.</div>`; });
   } else {
-    const c=document.getElementById('panel-files-list'); if(!c) return;
-    if(r.files&&r.files.length) c.innerHTML=r.files.map(n=>`<div class="file-item" style="margin-bottom:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4A017" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="file-item-name">${esc(n)}</span></div>`).join('');
-    else c.innerHTML=`<div style="font-size:12px;color:var(--wsav-text-muted)">No files uploaded yet.</div>`;
+    const fc=document.getElementById('panel-files-list'); if(!fc) return;
+    fc.innerHTML=r.files&&r.files.length
+      ? r.files.map(n=>`<div class="file-item" style="margin-bottom:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4A017" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="file-item-name">${esc(n)}</span></div>`).join('')
+      : `<div style="font-size:12px;color:var(--wsav-text-muted)">No files uploaded yet.</div>`;
   }
-
-  document.getElementById('overlay').classList.add('open');
-  document.getElementById('detail-panel').classList.add('open');
 }
 
 function closeDetail(){
@@ -1532,8 +1501,8 @@ function closeDetail(){
   document.getElementById('detail-panel').classList.remove('open');
   openDetailId=null;
 }
-document.getElementById('panel-close').addEventListener('click',closeDetail);
-document.getElementById('overlay').addEventListener('click',()=>{ closeDetail(); document.getElementById('export-modal').classList.remove('open'); });
+document.getElementById('panel-close').onclick=closeDetail;
+document.getElementById('overlay').onclick=function(){ closeDetail(); document.getElementById('export-modal').classList.remove('open'); };
 
 /* ═══════════════════════════════
    FILTERS / SORT
