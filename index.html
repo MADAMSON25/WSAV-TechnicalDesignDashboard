@@ -617,7 +617,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
       <!-- 11. Project Folder Link -->
       <div class="field-group">
         <div class="field-label">11. Project Folder Link <span style="font-size:10px;color:var(--wsav-text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional — link to Sales or Project folder)</span></div>
-        <div class="field-hint">Paste the URL to the SharePoint, Teams, or network folder containing job information.</div>
+        <div class="field-hint">Paste the URL to the SharePoint folder containing job information. <strong style="color:#D4A017">Must be a SharePoint URL — not a local or network folder path.</strong></div>
         <div class="folder-link-input">
           <input type="url" class="form-input" id="f-folder-url" placeholder="https://workspaceav1.sharepoint.com/sites/…"/>
           <div class="folder-link-preview" id="folder-link-preview">
@@ -852,20 +852,19 @@ async function spSave(req){
 /* ─── Debounced save ─── */
 const saveTimers={};
 function saveRequest(req){
-  if(!spAccount) return;
-  const name=spAccount.name||spAccount.username||'Unknown';
+  const name=spAccount?(spAccount.name||spAccount.username||'Unknown'):'Local';
   req.lastModifiedBy=name;
   req.lastModifiedAt=new Date().toISOString();
   // Update last-modified line in panel if open
   const lmEl=document.getElementById('dp-last-modified');
   if(lmEl) lmEl.innerHTML=modifiedHtml(req);
   saveLocal();
-  if(!spEnabled) return;
+  if(!spEnabled||!spAccount) return;
   clearTimeout(saveTimers[req.spId]);
   saveTimers[req.spId]=setTimeout(async()=>{
     setSyncing(true,'Saving…');
     try{ await spSave(req); setSyncing(false,'SharePoint Synced'); }
-    catch(e){ setSyncing(false,'Save Error','error'); console.warn('SP save failed:',e); }
+    catch(e){ setSyncing(false,'Saved locally',''); console.warn('SP save failed:',e); }
   },700);
 }
 
@@ -1362,13 +1361,8 @@ function renderPanelContent(r){
       <div id="proj-folder-link-wrap"></div>
       <div style="margin-top:8px">
         <div class="panel-field-label" style="margin-bottom:5px">Paste a new folder link to replace the current one</div>
-        <input class="panel-input" type="url" id="dp-folder-url" value="${esc(r.folderUrl||'')}" placeholder="https://…"/>
-      </div>
-    </div>
-      <div id="panel-files-list">
-        <div style="font-size:12px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px">
-          <span class="sync-dot syncing" style="flex-shrink:0"></span> Loading files…
-        </div>
+        <div style="font-size:11px;color:#4a7570;line-height:1.5;margin-bottom:6px">⚠ Link must be a SharePoint URL — not a local or network folder path.</div>
+        <input class="panel-input" type="url" id="dp-folder-url" value="${esc(r.folderUrl||'')}" placeholder="https://workspaceav1.sharepoint.com/…"/>
       </div>
     </div>
 
