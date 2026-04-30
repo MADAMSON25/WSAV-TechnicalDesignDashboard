@@ -480,7 +480,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
         </div>
         <div class="field-group">
           <div class="field-label">Project Code <span style="color:#ff8a80">*</span></div>
-          <input type="text" class="form-input" id="f-proj-code" placeholder="e.g. WAV-2025-001"/>
+          <input type="text" class="form-input" id="f-proj-code" placeholder="e.g. 250001"/>
           <div class="proj-link-hint" id="proj-dashboard-hint">View in <a href="#" id="proj-dashboard-link" target="_blank">Project Dashboard</a></div>
         </div>
       </div>
@@ -1113,9 +1113,14 @@ function makeCard(req,isArchive){
   }
 
   // PM initials (up to 2 chars)
-  const pmInitials=req.pm ? req.pm.trim().split(/\s+/).map(w=>w[0]).join('').substring(0,2).toUpperCase() : '?';
-  const pmBadgeClass=req.pm ? 'pm-badge' : 'pm-badge pm-badge-unset';
-  const pmTitle=req.pm ? `Responsible: ${req.pm}` : 'No person responsible assigned';
+  const leadInitials=(()=>{
+    if(!req.lead) return '?';
+    const parts=req.lead.trim().split(/\s+/);
+    if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+    return parts[0].substring(0,2).toUpperCase();
+  })();
+  const pmBadgeClass=req.lead ? 'pm-badge' : 'pm-badge pm-badge-unset';
+  const pmTitle=req.lead ? `Designer: ${req.lead}` : 'No designer assigned';
 
   const sc=STATUS_CLASS[req.status]||'ss-design';
   const prioClass=req.priority==='P1'?'pb-p1':'pb-p2';
@@ -1128,7 +1133,7 @@ function makeCard(req,isArchive){
       <div class="card-name">${esc(req.projectName)}</div>
       <div class="card-top-right">
         <div class="card-code">${esc(req.projectCode)}</div>
-        <span class="${pmBadgeClass}" title="${esc(pmTitle)}">${esc(pmInitials)}</span>
+        <span class="${pmBadgeClass}" title="${esc(pmTitle)}">${esc(leadInitials)}</span>
       </div>
     </div>
     <div class="card-meta">
@@ -1342,14 +1347,14 @@ function renderPanelContent(r){
     <div class="panel-section">
       <div class="section-head">Project Folder</div>
       ${r.folderUrl
-        ? `<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;color:var(--wsav-gold);text-decoration:none;font-size:12px;font-weight:600;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(212,160,23,0.4)'" onmouseout="this.style.borderColor='var(--wsav-border)'">
+        ? `<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;color:var(--wsav-gold);text-decoration:none;font-size:12px;font-weight:600;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(212,160,23,0.4)'" onmouseout="this.style.borderColor='var(--wsav-border)'" onclick="event.stopPropagation();window.open(this.href,'_blank');event.preventDefault();">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.folderUrl)}</span>
             <span style="font-size:10px;opacity:0.7;flex-shrink:0">Open ↗</span>
           </a>`
         : `<div style="font-size:12px;color:var(--wsav-text-muted)">No folder link added yet.</div>`}
       <div style="margin-top:8px">
-        <div class="panel-field-label" style="margin-bottom:5px">Update Folder Link</div>
+        <div class="panel-field-label" style="margin-bottom:5px">Paste a new folder link to replace the current one</div>
         <input class="panel-input" type="url" id="dp-folder-url" value="${esc(r.folderUrl||'')}" placeholder="https://…"/>
       </div>
     </div>
@@ -1546,7 +1551,7 @@ document.getElementById('archive-toggle').addEventListener('click',function(){
 let raiseFormOpen=false;
 document.getElementById('raise-btn').addEventListener('click',()=>{ raiseFormOpen=true; document.getElementById('raise-modal').classList.add('open'); document.getElementById('raise-modal-body').scrollTop=0; });
 document.getElementById('raise-cancel').addEventListener('click',closeRaiseModal);
-document.getElementById('raise-modal').addEventListener('click',function(e){ if(e.target===this) closeRaiseModal(); });
+document.getElementById('raise-modal').addEventListener('click',function(e){ void e; /* clicking outside does not close — use Cancel button */ });
 
 function closeRaiseModal(){
   raiseFormOpen=false;
