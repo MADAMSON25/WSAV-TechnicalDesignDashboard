@@ -797,7 +797,6 @@ async function spLoadAll(){
 
 function mapSP(item){
   const code=item.ProjectCode||'';
-  const folderUrl=code?`${SP_SITE}/${SP_DOC_LIB}/${encodeURIComponent(code)}`:'';
   return{
     id:item.Id, spId:item.Id,
     projectName:item.ProjectName||item.Title||'—',
@@ -816,7 +815,10 @@ function mapSP(item){
     created:item.Created?item.Created.substring(0,10):'',
     lastModifiedBy:item.LastModifiedBy||'',
     lastModifiedAt:item.LastModifiedAt||'',
-    files:[], folderUrl,
+    files:[], folderUrl:item.FolderUrl||'',
+    drawingTypes:item.DrawingTypes?(item.DrawingTypes.split(',').map(s=>s.trim()).filter(Boolean)):[],
+    revisionType:item.RevisionType||'',
+    revisionRef:item.RevisionRef||'',
     drawingsReady:item.DrawingsReady||false,
     allocatedDesigner:item.AllocatedDesigner||''
   };
@@ -828,6 +830,10 @@ async function spCreate(payload){
     AssignedPM:payload.pm, TechLead:payload.lead, ScopeOfWorks:payload.scope,
     FloorType:payload.floorType, SalesType:payload.sales, RequiredByDate:payload.requiredBy,
     Priority:payload.priority, RequestStatus:'In Design', Archived:false,
+    FolderUrl:payload.folderUrl||'',
+    DrawingTypes:(payload.drawingTypes||[]).join(','),
+    RevisionType:payload.revisionType||'',
+    RevisionRef:payload.revisionRef||'',
     CADNotes:'', LastModifiedBy:'', LastModifiedAt:''
   });
   return result.Id||result.id;
@@ -844,6 +850,10 @@ async function spSave(req){
     ScopeOfWorks:req.scope||'', FloorType:req.floorType||'',
     SalesType:req.sales||'', RequiredByDate:req.requiredBy||null,
     Priority:req.priority||'P2',
+    FolderUrl:req.folderUrl||'',
+    DrawingTypes:(req.drawingTypes||[]).join(','),
+    RevisionType:req.revisionType||'',
+    RevisionRef:req.revisionRef||'',
     LastModifiedBy:req.lastModifiedBy||'',
     LastModifiedAt:req.lastModifiedAt||''
   });
@@ -864,7 +874,7 @@ function saveRequest(req){
   saveTimers[req.spId]=setTimeout(async()=>{
     setSyncing(true,'Saving…');
     try{ await spSave(req); setSyncing(false,'SharePoint Synced'); }
-    catch(e){ setSyncing(false,'Saved locally',''); console.warn('SP save failed:',e); }
+    catch(e){ setSyncing(false,'Save Error','error'); console.warn('SP save failed:',e); }
   },700);
 }
 
