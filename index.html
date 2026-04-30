@@ -817,7 +817,8 @@ function mapSP(item){
     lastModifiedBy:item.LastModifiedBy||'',
     lastModifiedAt:item.LastModifiedAt||'',
     files:[], folderUrl,
-    drawingsReady:item.DrawingsReady||false
+    drawingsReady:item.DrawingsReady||false,
+    allocatedDesigner:item.AllocatedDesigner||''
   };
 }
 
@@ -838,6 +839,7 @@ async function spSave(req){
     RequestStatus:req.status, Archived:req.archived,
     CADNotes:req.notes||'',
     DrawingsReady:req.drawingsReady||false,
+    AllocatedDesigner:req.allocatedDesigner||'',
     AssignedPM:req.pm||'', TechLead:req.lead||'',
     ScopeOfWorks:req.scope||'', FloorType:req.floorType||'',
     SalesType:req.sales||'', RequiredByDate:req.requiredBy||null,
@@ -1114,13 +1116,14 @@ function makeCard(req,isArchive){
 
   // PM initials (up to 2 chars)
   const leadInitials=(()=>{
-    if(!req.lead) return '?';
-    const parts=req.lead.trim().split(/\s+/);
+    const name=req.allocatedDesigner||'';
+    if(!name) return '?';
+    const parts=name.trim().split(/\s+/);
     if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
     return parts[0].substring(0,2).toUpperCase();
   })();
-  const pmBadgeClass=req.lead ? 'pm-badge' : 'pm-badge pm-badge-unset';
-  const pmTitle=req.lead ? `Designer: ${req.lead}` : 'No designer assigned';
+  const pmBadgeClass=req.allocatedDesigner ? 'pm-badge' : 'pm-badge pm-badge-unset';
+  const pmTitle=req.allocatedDesigner ? `Designer: ${req.allocatedDesigner}` : 'No designer allocated';
 
   const sc=STATUS_CLASS[req.status]||'ss-design';
   const prioClass=req.priority==='P1'?'pb-p1':'pb-p2';
@@ -1257,9 +1260,18 @@ function renderPanelContent(r){
   const c=document.getElementById('panel-content');
   c.innerHTML=`
 
-    <!-- Drawings Ready -->
+    <!-- Drawings Ready + Allocated Designer -->
     <div class="panel-section">
       <div class="section-head">CAD Team</div>
+      <!-- Allocated Designer -->
+      <div class="panel-field" style="margin-bottom:14px">
+        <div class="panel-field-label">Allocated Designer</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="ad-badge" class="${r.allocatedDesigner?'pm-badge':'pm-badge pm-badge-unset'}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${r.allocatedDesigner?(()=>{const p=r.allocatedDesigner.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():p[0].substring(0,2).toUpperCase();})():'?'}</span>
+          <input class="panel-input" type="text" id="dp-designer" value="${esc(r.allocatedDesigner||'')}" placeholder="Full name — e.g. Jez Morris" style="flex:1"/>
+        </div>
+      </div>
+      <!-- Drawings Ready toggle -->
       <div class="drawings-ready-toggle${r.drawingsReady?' active':''}" id="dr-toggle">
         <div class="drt-label">
           <div class="drt-title">Drawings Ready</div>
@@ -1422,6 +1434,34 @@ function renderPanelContent(r){
   document.getElementById('dp-priority').onchange=saveFields;
   document.getElementById('dp-sales').onchange=saveFields;
   document.getElementById('dp-floor').onchange=saveFields;
+
+  // Allocated designer — live initials preview + autosave
+  const dpDesigner=document.getElementById('dp-designer');
+  const adBadge=document.getElementById('ad-badge');
+  function designerInitials(name){
+    if(!name.trim()) return '?';
+    const p=name.trim().split(/\s+/);
+    return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():p[0].substring(0,2).toUpperCase();
+  }
+  let designerTimer;
+  dpDesigner.oninput=function(){
+    const initials=designerInitials(this.value);
+    adBadge.textContent=initials;
+    adBadge.className=this.value.trim()?'pm-badge':'pm-badge pm-badge-unset';
+    adBadge.style.cssText='width:36px;height:36px;font-size:13px;flex-shrink:0';
+    clearTimeout(designerTimer);
+    designerTimer=setTimeout(()=>{
+      r.allocatedDesigner=this.value.trim();
+      // Update card badge live
+      const cardBadge=document.querySelector(`[data-id="${r.spId||r.id}"] .pm-badge, [data-id="${r.spId||r.id}"] .pm-badge-unset`);
+      if(cardBadge){
+        cardBadge.textContent=designerInitials(r.allocatedDesigner);
+        cardBadge.className=r.allocatedDesigner?'pm-badge':'pm-badge pm-badge-unset';
+        cardBadge.title=r.allocatedDesigner?`Designer: ${r.allocatedDesigner}`:'No designer allocated';
+      }
+      saveRequest(r); flashSaved();
+    },700);
+  };
 
   // Notes autosave
   let notesTimer;
