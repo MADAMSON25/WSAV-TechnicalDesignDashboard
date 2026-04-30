@@ -1143,7 +1143,7 @@ function makeCard(req,isArchive){
       <div class="card-status-wrap ${sc}" id="sw-${req.spId||req.id}"></div>
       ${dueBadge}
     </div>
-    ${req.lead?`<div class="card-lead" style="margin-bottom:8px;font-size:11px;color:var(--wsav-text-muted)">Lead: <strong>${esc(req.lead)}</strong></div>`:''}
+
     <div class="prog-label"><span>Design Progress</span><span>${pct}%</span></div>
     <div class="prog-track"><div class="prog-bar ${progClass}" style="width:${pct}%"></div></div>
     <div class="card-badges" id="badges-${req.spId||req.id}" style="margin-top:8px">
