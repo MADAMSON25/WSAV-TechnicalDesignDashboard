@@ -394,11 +394,11 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 
 <!-- STATS -->
 <div class="stats-row">
-  <div class="stat-cell"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Total</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-design" style="color:#c9a6ff">0</div><div class="stat-lbl">In Design</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-review" style="color:var(--wsav-gold)">0</div><div class="stat-lbl">In Review</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-approved" style="color:#6ee68b">0</div><div class="stat-lbl">Approved</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-issued" style="color:#7ec8f5">0</div><div class="stat-lbl">Issued</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Planning</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-design" style="color:#c9a6ff">0</div><div class="stat-lbl">Scheduled</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-review" style="color:var(--wsav-gold)">0</div><div class="stat-lbl">In Progress</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-approved" style="color:#6ee68b">0</div><div class="stat-lbl">Snagging</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-issued" style="color:#7ec8f5">0</div><div class="stat-lbl">Complete</div></div>
 </div>
 
 <!-- BODY -->
@@ -1114,16 +1114,28 @@ function makeCard(req,isArchive){
     else dueBadge=`<span class="due-badge due-normal">Due: ${fmtDate(req.requiredBy)}</span>`;
   }
 
-  // PM initials (up to 2 chars)
-  const leadInitials=(()=>{
-    const name=req.allocatedDesigner||'';
-    if(!name) return '?';
+  // Helper: get initials from name
+  function getInitials(name){
+    if(!name||name==='—') return '?';
     const parts=name.trim().split(/\s+/);
     if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
     return parts[0].substring(0,2).toUpperCase();
-  })();
+  }
+
+  // Allocated designer initials (existing badge, top-right)
+  const leadInitials=getInitials(req.allocatedDesigner||'');
   const pmBadgeClass=req.allocatedDesigner ? 'pm-badge' : 'pm-badge pm-badge-unset';
   const pmTitle=req.allocatedDesigner ? `Designer: ${req.allocatedDesigner}` : 'No designer allocated';
+
+  // PM initials badge
+  const pmInitials=getInitials(req.pm||'');
+  const pmClass=req.pm&&req.pm!=='—' ? 'pm-badge' : 'pm-badge pm-badge-unset';
+  const pmLabelTitle=req.pm&&req.pm!=='—' ? `PM: ${req.pm}` : 'No PM assigned';
+
+  // Technical Lead initials badge
+  const tlInitials=getInitials(req.lead||'');
+  const tlClass=req.lead&&req.lead!=='—' ? 'pm-badge' : 'pm-badge pm-badge-unset';
+  const tlLabelTitle=req.lead&&req.lead!=='—' ? `Lead: ${req.lead}` : 'No lead assigned';
 
   const sc=STATUS_CLASS[req.status]||'ss-design';
   const prioClass=req.priority==='P1'?'pb-p1':'pb-p2';
@@ -1131,11 +1143,18 @@ function makeCard(req,isArchive){
   const pct=STATUS_PROG[req.status]||0;
   const progClass=PROG_CLASS[req.status]||'';
 
+  // Drawing types
+  const drawingTypesHtml=req.drawingTypes&&req.drawingTypes.length
+    ? `<div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:4px">${req.drawingTypes.map(dt=>`<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:rgba(138,173,169,0.1);color:var(--wsav-text-muted);border:1px solid var(--wsav-border)">${esc(dt)}</span>`).join('')}</div>`
+    : '';
+
   card.innerHTML=`
     <div class="card-top">
       <div class="card-name">${esc(req.projectName)}</div>
       <div class="card-top-right">
         <div class="card-code">${esc(req.projectCode)}</div>
+        <span class="${pmClass}" title="${esc(pmLabelTitle)}" style="background:rgba(52,152,219,0.12);border-color:rgba(52,152,219,0.3);color:#7ec8f5">${esc(pmInitials)}</span>
+        <span class="${tlClass}" title="${esc(tlLabelTitle)}" style="background:rgba(110,230,139,0.12);border-color:rgba(110,230,139,0.3);color:#6ee68b">${esc(tlInitials)}</span>
         <span class="${pmBadgeClass}" title="${esc(pmTitle)}">${esc(leadInitials)}</span>
       </div>
     </div>
@@ -1143,7 +1162,6 @@ function makeCard(req,isArchive){
       <div class="card-status-wrap ${sc}" id="sw-${req.spId||req.id}"></div>
       ${dueBadge}
     </div>
-    ${req.lead?`<div class="card-lead" style="margin-bottom:8px;font-size:11px;color:var(--wsav-text-muted)">Lead: <strong>${esc(req.lead)}</strong></div>`:''}
     <div class="prog-label"><span>Design Progress</span><span>${pct}%</span></div>
     <div class="prog-track"><div class="prog-bar ${progClass}" style="width:${pct}%"></div></div>
     <div class="card-badges" id="badges-${req.spId||req.id}" style="margin-top:8px">
@@ -1151,7 +1169,8 @@ function makeCard(req,isArchive){
       ${req.sales?`<span class="sales-badge ${salesClass}">${esc(req.sales)}</span>`:''}
       ${req.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
       ${req.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}
-    </div>`;
+    </div>
+    ${drawingTypesHtml}`;
 
   // Status select injected as DOM node (not innerHTML) to avoid event issues
   const sw=card.querySelector(`#sw-${req.spId||req.id}`);
@@ -1359,7 +1378,7 @@ function renderPanelContent(r){
     <div class="panel-section">
       <div class="section-head">Project Folder</div>
       ${r.folderUrl
-        ? `<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;color:var(--wsav-gold);text-decoration:none;font-size:12px;font-weight:600;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(212,160,23,0.4)'" onmouseout="this.style.borderColor='var(--wsav-border)'" onclick="event.stopPropagation();window.open(this.href,'_blank');event.preventDefault();">
+        ? `<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;color:var(--wsav-gold);text-decoration:none;font-size:12px;font-weight:600;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(212,160,23,0.4)'" onmouseout="this.style.borderColor='var(--wsav-border)'" onclick="event.stopPropagation();">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.folderUrl)}</span>
             <span style="font-size:10px;opacity:0.7;flex-shrink:0">Open ↗</span>
