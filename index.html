@@ -107,9 +107,13 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px}
 .card-name{font-size:13px;font-weight:600;color:var(--wsav-white);line-height:1.4;flex:1}
 .card-code{font-size:11px;color:var(--wsav-gold);font-weight:600;white-space:nowrap;flex-shrink:0}
-.card-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:10px 0}
-.meta-lbl{font-size:10px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px}
-.meta-val{font-size:11px;color:var(--wsav-offwhite);font-weight:500}
+.card-top-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pm-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.35);color:var(--wsav-gold);font-size:10px;font-weight:800;flex-shrink:0;letter-spacing:0.02em;cursor:default;text-transform:uppercase}
+.pm-badge:hover{background:rgba(212,160,23,0.25)}
+.pm-badge-unset{background:rgba(138,173,169,0.08);border-color:var(--wsav-border);color:var(--wsav-text-muted)}
+.card-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;align-items:center}
+.card-lead{font-size:11px;color:var(--wsav-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-lead strong{color:var(--wsav-offwhite);font-weight:500}
 /* progress bar */
 .prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--wsav-text-muted);margin-bottom:4px}
 .prog-track{height:3px;background:var(--wsav-dark2);border-radius:2px;overflow:hidden;margin-bottom:10px}
@@ -199,17 +203,10 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .radio-text{font-size:13px;color:var(--wsav-offwhite)}
 
 /* ── File upload ── */
-.file-drop-zone{border:1px dashed var(--wsav-border-light);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.15s,background 0.15s;background:var(--wsav-input)}
-.file-drop-zone:hover,.file-drop-zone.drag{border-color:var(--wsav-gold-muted);background:rgba(212,160,23,0.04)}
-.file-drop-zone svg{margin-bottom:8px;stroke:var(--wsav-text-muted)}
-.file-drop-zone p{font-size:13px;color:var(--wsav-text-muted);margin-bottom:3px}
-.file-drop-zone span{font-size:11px;color:#4a7570}
-.file-list{display:flex;flex-direction:column;gap:5px;margin-top:7px}
-.file-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--wsav-dark2);border:1px solid var(--wsav-border);border-radius:6px;font-size:12px;color:var(--wsav-text-muted)}
-.file-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-item-size{font-size:11px;color:#4a7570;white-space:nowrap}
-.file-remove{background:none;border:none;cursor:pointer;color:#4a7570;font-size:15px;line-height:1;padding:0 2px;transition:color 0.1s}
-.file-remove:hover{color:#ff8a80}
+.folder-link-input{display:flex;flex-direction:column;gap:6px}
+.folder-link-preview{font-size:11px;color:var(--wsav-gold);margin-top:4px;word-break:break-all;display:none}
+.folder-link-preview a{color:var(--wsav-gold);text-decoration:none}
+.folder-link-preview a:hover{text-decoration:underline}
 
 /* ── Detail panel ── */
 .overlay{display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px)}
@@ -617,16 +614,16 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
         </div>
       </div>
 
-      <!-- 11. Upload Files (moved to last) -->
+      <!-- 11. Project Folder Link -->
       <div class="field-group">
-        <div class="field-label">11. Supporting Files <span style="font-size:10px;color:var(--wsav-text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional — attach marked-up plans, specs, photos)</span></div>
-        <div class="file-drop-zone" id="file-drop">
-          <input type="file" id="file-input" multiple accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.png,.jpg,.jpeg,.gif,.mp4,.mov,.avi,.mp3,.wav,.dwg,.dxf" style="display:none"/>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <p>Click to upload or drag &amp; drop</p>
-          <span>Word, Excel, PPT, PDF, Image, Video, DWG/DXF — up to 10 files, 1 GB each</span>
+        <div class="field-label">11. Project Folder Link <span style="font-size:10px;color:var(--wsav-text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional — link to Sales or Project folder)</span></div>
+        <div class="field-hint">Paste the URL to the SharePoint, Teams, or network folder containing job information.</div>
+        <div class="folder-link-input">
+          <input type="url" class="form-input" id="f-folder-url" placeholder="https://workspaceav1.sharepoint.com/sites/…"/>
+          <div class="folder-link-preview" id="folder-link-preview">
+            📁 <a id="folder-link-anchor" href="#" target="_blank" rel="noopener">Open folder ↗</a>
+          </div>
         </div>
-        <div class="file-list" id="file-list"></div>
       </div>
 
     </div>
@@ -900,6 +897,8 @@ async function syncFromSP(){
     }
     saveLocal();
     setSyncing(false,'SharePoint Synced');
+    // Only re-render if the raise form is not currently open — avoids clearing in-progress entries
+    if(!raiseFormOpen){ renderStats(); renderGrid(); }
     showSPBanner(`SharePoint synced — ${state.requests.length} requests loaded`);
   }catch(e){
     setSyncing(false,'Sync Failed','error');
@@ -1113,44 +1112,47 @@ function makeCard(req,isArchive){
     else dueBadge=`<span class="due-badge due-normal">Due: ${fmtDate(req.requiredBy)}</span>`;
   }
 
-  const floorShort=req.floorType==='Computer Raise Floor'?'Raised Floor':req.floorType==='Solid Floor Construction'?'Solid Floor':req.floorType;
-  const salesClass=req.sales==='Pre Sales'?'sales-pre':'sales-post';
+  // PM initials (up to 2 chars)
+  const pmInitials=req.pm ? req.pm.trim().split(/\s+/).map(w=>w[0]).join('').substring(0,2).toUpperCase() : '?';
+  const pmBadgeClass=req.pm ? 'pm-badge' : 'pm-badge pm-badge-unset';
+  const pmTitle=req.pm ? `Responsible: ${req.pm}` : 'No person responsible assigned';
+
+  const sc=STATUS_CLASS[req.status]||'ss-design';
   const prioClass=req.priority==='P1'?'pb-p1':'pb-p2';
+  const salesClass=req.sales==='Pre Sales'?'sales-pre':'sales-post';
   const pct=STATUS_PROG[req.status]||0;
   const progClass=PROG_CLASS[req.status]||'';
-  const modStr=req.lastModifiedBy?`Updated by ${esc(req.lastModifiedBy.split(' ')[0])}${req.lastModifiedAt?' · '+fmtDate(req.lastModifiedAt):''}` :'';
 
   card.innerHTML=`
     <div class="card-top">
       <div class="card-name">${esc(req.projectName)}</div>
-      <div class="card-code">${esc(req.projectCode)}</div>
+      <div class="card-top-right">
+        <div class="card-code">${esc(req.projectCode)}</div>
+        <span class="${pmBadgeClass}" title="${esc(pmTitle)}">${esc(pmInitials)}</span>
+      </div>
     </div>
     <div class="card-meta">
-      <div><div class="meta-lbl">PM / POC</div><div class="meta-val">${esc(req.pm)}</div></div>
-      <div><div class="meta-lbl">Tech Lead</div><div class="meta-val">${esc(req.lead)}</div></div>
-      <div><div class="meta-lbl">Sales Type</div><div class="meta-val">${esc(req.sales)}</div></div>
-      <div><div class="meta-lbl">Floor Type</div><div class="meta-val">${esc(floorShort)}</div></div>
-    </div>
-    <div class="prog-label"><span>Design Progress</span><span>${pct}%</span></div>
-    <div class="prog-track"><div class="prog-bar ${progClass}" style="width:${pct}%"></div></div>
-    <div class="card-badges" id="badges-${req.spId||req.id}">
-      <span class="prio-badge ${prioClass}">${esc(req.priority)}</span>
-      ${req.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
-      ${req.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}
+      <div class="card-status-wrap ${sc}" id="sw-${req.spId||req.id}"></div>
       ${dueBadge}
     </div>
-    <div class="card-footer">
-      <div id="sel-wrap-${req.spId||req.id}"></div>
-      <span class="card-modified">${esc(modStr)}</span>
+    ${req.lead?`<div class="card-lead" style="margin-bottom:8px;font-size:11px;color:var(--wsav-text-muted)">Lead: <strong>${esc(req.lead)}</strong></div>`:''}
+    <div class="prog-label"><span>Design Progress</span><span>${pct}%</span></div>
+    <div class="prog-track"><div class="prog-bar ${progClass}" style="width:${pct}%"></div></div>
+    <div class="card-badges" id="badges-${req.spId||req.id}" style="margin-top:8px">
+      <span class="prio-badge ${prioClass}">${esc(req.priority)}</span>
+      ${req.sales?`<span class="sales-badge ${salesClass}">${esc(req.sales)}</span>`:''}
+      ${req.revisionType==='Revision'?`<span class="floor-badge" style="background:rgba(212,160,23,0.1);color:var(--wsav-gold);border-color:rgba(212,160,23,0.25)">↺ Revision</span>`:''}
+      ${req.drawingsReady?`<span class="dr-badge">✓ Drawings Ready</span>`:''}
     </div>`;
 
-  // Inject status select (DOM element)
-  if(!isArchive){
-    const selWrap=card.querySelector(`#sel-wrap-${req.spId||req.id}`);
-    if(selWrap) selWrap.appendChild(makeStatusSelect(req));
-  } else {
-    const selWrap=card.querySelector(`#sel-wrap-${req.spId||req.id}`);
-    if(selWrap){ selWrap.innerHTML=`<span class="due-badge due-normal">Archived</span>`; }
+  // Status select injected as DOM node (not innerHTML) to avoid event issues
+  const sw=card.querySelector(`#sw-${req.spId||req.id}`);
+  if(sw){
+    if(!isArchive){
+      sw.appendChild(makeStatusSelect(req));
+    } else {
+      sw.outerHTML=`<span class="due-badge due-normal">Archived</span>`;
+    }
   }
 
   card.addEventListener('click',function(e){
@@ -1329,18 +1331,28 @@ function renderPanelContent(r){
     <div class="panel-section">
       <div class="section-head">Request Info</div>
       <div class="detail-grid">
-        <span class="dk">Raised By</span><span class="dv">${esc(r.createdBy||'—')}</span>
+        <span class="dk">Raised By</span><span class="dv">${esc(r.createdBy||'—')}${r.requesterEmail&&r.requesterEmail!==r.createdBy?` <span style="font-size:10px;color:var(--wsav-text-muted)">(${esc(r.requesterEmail)})</span>`:''}</span>
         <span class="dk">Date Raised</span><span class="dv">${esc(r.created||'—')}</span>
         ${r.drawingTypes&&r.drawingTypes.length?`<span class="dk">Drawing Type(s)</span><span class="dv">${esc(r.drawingTypes.join(', '))}</span>`:''}
         ${r.revisionType?`<span class="dk">Request Type</span><span class="dv">${esc(r.revisionType==='Revision'&&r.revisionRef?'Revision — '+r.revisionRef:r.revisionType)}</span>`:''}
       </div>
     </div>
 
-    <!-- Files -->
+    <!-- Project Folder -->
     <div class="panel-section">
-      <div class="section-head">Files
-        ${r.folderUrl?`<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="font-size:10px;color:var(--wsav-gold);text-decoration:none;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Open Folder ↗</a>`:''}
+      <div class="section-head">Project Folder</div>
+      ${r.folderUrl
+        ? `<a href="${esc(r.folderUrl)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:7px;color:var(--wsav-gold);text-decoration:none;font-size:12px;font-weight:600;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(212,160,23,0.4)'" onmouseout="this.style.borderColor='var(--wsav-border)'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.folderUrl)}</span>
+            <span style="font-size:10px;opacity:0.7;flex-shrink:0">Open ↗</span>
+          </a>`
+        : `<div style="font-size:12px;color:var(--wsav-text-muted)">No folder link added yet.</div>`}
+      <div style="margin-top:8px">
+        <div class="panel-field-label" style="margin-bottom:5px">Update Folder Link</div>
+        <input class="panel-input" type="url" id="dp-folder-url" value="${esc(r.folderUrl||'')}" placeholder="https://…"/>
       </div>
+    </div>
       <div id="panel-files-list">
         <div style="font-size:12px;color:var(--wsav-text-muted);display:flex;align-items:center;gap:6px">
           <span class="sync-dot syncing" style="flex-shrink:0"></span> Loading files…
@@ -1383,6 +1395,7 @@ function renderPanelContent(r){
     r.sales=document.getElementById('dp-sales').value;
     r.floorType=document.getElementById('dp-floor').value;
     r.scope=document.getElementById('dp-scope').value.trim();
+    const fuEl=document.getElementById('dp-folder-url'); if(fuEl) r.folderUrl=fuEl.value.trim();
     // Update panel header live
     if(name){ document.getElementById('panel-title-text').textContent=r.projectName; }
     if(code){ document.getElementById('panel-code-text').textContent=r.projectCode; }
@@ -1397,6 +1410,8 @@ function renderPanelContent(r){
   document.getElementById('dp-pm').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
   document.getElementById('dp-lead').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
   document.getElementById('dp-scope').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
+  const dpFolder=document.getElementById('dp-folder-url');
+  if(dpFolder) dpFolder.oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
   // Selects and date — save immediately on change
   document.getElementById('dp-due').onchange=saveFields;
   document.getElementById('dp-priority').onchange=saveFields;
@@ -1407,18 +1422,27 @@ function renderPanelContent(r){
   let notesTimer;
   document.getElementById('dp-notes').oninput=function(){ r.notes=this.value; clearTimeout(notesTimer); notesTimer=setTimeout(()=>{ saveRequest(r); flashSaved(); },800); };
 
-  // Drawings-ready toggle
+  // Drawings-ready toggle — email requester when marked ready
   document.getElementById('dr-toggle').onclick=function(){
     r.drawingsReady=!r.drawingsReady;
     this.classList.toggle('active',r.drawingsReady);
-    // Update hero badge
     const heroDR=document.querySelector('#panel-hero-meta .dr-badge');
     if(r.drawingsReady&&!heroDR){ const b=document.createElement('span'); b.className='dr-badge'; b.textContent='✓ Drawings Ready'; document.getElementById('panel-autosave').before(b); }
     else if(!r.drawingsReady&&heroDR){ heroDR.remove(); }
-    // Update card badge live
     const cardBadges=document.getElementById(`badges-${r.spId||r.id}`);
     if(cardBadges){ const ex=cardBadges.querySelector('.dr-badge'); if(r.drawingsReady&&!ex){const b=document.createElement('span');b.className='dr-badge';b.textContent='✓ Drawings Ready';cardBadges.appendChild(b);}else if(!r.drawingsReady&&ex){ex.remove();} }
     saveRequest(r); flashSaved();
+    // Open mailto to notify requester when drawings first marked ready
+    if(r.drawingsReady && r.requesterEmail){
+      const subject=encodeURIComponent(`Drawings Ready — ${r.projectName} (${r.projectCode})`);
+      const body=encodeURIComponent(
+        `Hi,\n\nThe CAD drawings for the following request are now ready:\n\n`+
+        `Project: ${r.projectName}\nCode: ${r.projectCode}\nRequired By: ${r.requiredBy||'—'}\n`+
+        (r.folderUrl?`\nFolder: ${r.folderUrl}\n`:'')+
+        `\nPlease review and confirm receipt.\n\nWorkspace AV — Technical Design Team`
+      );
+      window.open(`mailto:${encodeURIComponent(r.requesterEmail)}?subject=${subject}&body=${body}`);
+    }
   };
 
   // Archive
@@ -1519,25 +1543,25 @@ document.getElementById('archive-toggle').addEventListener('click',function(){
 /* ═══════════════════════════════
    RAISE MODAL
 ═══════════════════════════════ */
-document.getElementById('raise-btn').addEventListener('click',()=>{ document.getElementById('raise-modal').classList.add('open'); document.getElementById('raise-modal-body').scrollTop=0; });
+let raiseFormOpen=false;
+document.getElementById('raise-btn').addEventListener('click',()=>{ raiseFormOpen=true; document.getElementById('raise-modal').classList.add('open'); document.getElementById('raise-modal-body').scrollTop=0; });
 document.getElementById('raise-cancel').addEventListener('click',closeRaiseModal);
 document.getElementById('raise-modal').addEventListener('click',function(e){ if(e.target===this) closeRaiseModal(); });
 
 function closeRaiseModal(){
+  raiseFormOpen=false;
   document.getElementById('raise-modal').classList.remove('open');
   resetRaiseForm();
 }
 function resetRaiseForm(){
-  ['f-proj-name','f-proj-code','f-pm','f-lead','f-scope','f-date','f-rev-ref'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['f-proj-name','f-proj-code','f-pm','f-lead','f-scope','f-date','f-rev-ref','f-folder-url'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const flp=document.getElementById('folder-link-preview'); if(flp) flp.style.display='none';
   document.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('selected'));
   document.querySelectorAll('input[type=radio]').forEach(r=>{ r.checked=false; });
   document.querySelectorAll('.rev-opt').forEach(o=>o.classList.remove('selected'));
   document.getElementById('rev-ref-row').classList.remove('visible');
-  // Reset drawing types
   document.querySelectorAll('.dt-opt').forEach(o=>{ o.classList.remove('selected'); const cb=o.querySelector('input[type=checkbox]'); if(cb) cb.checked=false; });
   updateDTCount();
-  selectedFiles=[]; document.getElementById('file-list').innerHTML='';
-  // Reset project link hint
   updateProjDashboardLink('');
 }
 
@@ -1589,33 +1613,18 @@ document.querySelectorAll('.rev-opt').forEach(opt=>{
   });
 });
 
-/* ── File upload ── */
-const fileDrop=document.getElementById('file-drop'), fileInput=document.getElementById('file-input');
-fileDrop.addEventListener('click',()=>fileInput.click());
-fileDrop.addEventListener('dragover',e=>{ e.preventDefault(); fileDrop.classList.add('drag'); });
-fileDrop.addEventListener('dragleave',()=>fileDrop.classList.remove('drag'));
-fileDrop.addEventListener('drop',e=>{ e.preventDefault(); fileDrop.classList.remove('drag'); addFiles(Array.from(e.dataTransfer.files)); });
-fileInput.addEventListener('change',()=>{ addFiles(Array.from(fileInput.files)); fileInput.value=''; });
-function addFiles(files){
-  const rem=10-selectedFiles.length;
-  files.slice(0,rem).forEach(f=>{
-    if(f.size>1073741824){ showToast('File exceeds 1 GB: '+f.name,'error'); return; }
-    if(selectedFiles.find(x=>x.name===f.name)) return;
-    selectedFiles.push(f);
-  });
-  renderFileList();
-}
-function renderFileList(){
-  const list=document.getElementById('file-list');
-  list.innerHTML=selectedFiles.map((f,i)=>`
-    <div class="file-item">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4A017" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span class="file-item-name">${esc(f.name)}</span>
-      <span class="file-item-size">${fmtBytes(f.size)}</span>
-      <button type="button" class="file-remove" data-i="${i}">×</button>
-    </div>`).join('');
-  list.querySelectorAll('.file-remove').forEach(btn=>btn.addEventListener('click',()=>{ selectedFiles.splice(parseInt(btn.dataset.i),1); renderFileList(); }));
-}
+/* ── Folder URL preview ── */
+document.getElementById('f-folder-url').addEventListener('input',function(){
+  const preview=document.getElementById('folder-link-preview');
+  const anchor=document.getElementById('folder-link-anchor');
+  const val=this.value.trim();
+  if(val && (val.startsWith('http://') || val.startsWith('https://'))){
+    anchor.href=val;
+    preview.style.display='block';
+  } else {
+    preview.style.display='none';
+  }
+});
 
 /* ── Radio buttons (floor / sales / priority) ── */
 document.querySelectorAll('.radio-opt').forEach(opt=>{
@@ -1673,8 +1682,8 @@ document.getElementById('raise-submit').addEventListener('click',async function(
   const priority=document.querySelector('input[name="priority"]:checked')?.value||'';
   const revisionType=document.querySelector('input[name="revision"]:checked')?.value||'';
   const revisionRef=document.getElementById('f-rev-ref')?.value.trim()||'';
+  const folderUrl=document.getElementById('f-folder-url').value.trim();
 
-  // Drawing types
   const drawingTypes=Array.from(document.querySelectorAll('.dt-opt.selected'))
     .map(o=>o.dataset.value).filter(Boolean);
 
@@ -1683,41 +1692,33 @@ document.getElementById('raise-submit').addEventListener('click',async function(
   }
 
   this.disabled=true; this.textContent='Creating request…';
-  const localId=Date.now(); // local-only temporary ID — never sent to SharePoint
-  let spId=null, uploadedFiles=[];
+  const localId=Date.now();
+  let spId=null;
+
+  // Requester = signed-in Microsoft account name, fallback to PM
+  const createdBy=spAccount?.name||spAccount?.username||pm||'Unknown';
+  const requesterEmail=spAccount?.username||'';
 
   try{
     if(spEnabled){
       try{ spId=await spCreate({projectName,projectCode,pm,lead,scope,floorType,sales,requiredBy,priority}); }
       catch(e){ console.warn('SP create failed:',e); }
-      if(selectedFiles.length){
-        this.textContent=`Uploading ${selectedFiles.length} file${selectedFiles.length>1?'s':''}…`;
-        try{
-          uploadedFiles=await spUploadFiles(projectCode,selectedFiles);
-          const failed=uploadedFiles.filter(f=>f.error);
-          if(failed.length) showToast(`${failed.length} file(s) failed to upload — request saved.`,'error');
-        }catch(e){ console.warn('Upload failed:',e); }
-      }
-    } else {
-      uploadedFiles=selectedFiles.map(f=>({name:f.name}));
     }
-    const createdBy=spAccount?.name||'Me';
     const newReq={
       id:spId||localId, spId:spId||null,
       projectName, projectCode, pm, lead, scope, notes:'',
       floorType, sales, requiredBy, priority,
-      revisionType, revisionRef,
-      drawingTypes,
+      revisionType, revisionRef, drawingTypes,
       status:'In Design', archived:false,
-      createdBy, created:new Date().toISOString().substring(0,10),
+      createdBy, requesterEmail,
+      created:new Date().toISOString().substring(0,10),
       lastModifiedBy:'', lastModifiedAt:'',
-      files:uploadedFiles.map(f=>f.name||f),
-      folderUrl:spEnabled?`${SP_SITE}/${SP_DOC_LIB}/${encodeURIComponent(projectCode)}`:''
+      files:[], folderUrl
     };
     state.requests.unshift(newReq);
+    raiseFormOpen=false;
     saveLocal(); renderStats(); renderGrid(); closeRaiseModal();
-    const successFileCount=uploadedFiles.filter(f=>!f.error).length;
-    showConfirmation(newReq, successFileCount);
+    showConfirmation(newReq, 0);
   }catch(e){
     console.error('Submit error:',e); showToast('Failed to submit. Please try again.','error');
   }finally{
