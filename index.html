@@ -94,7 +94,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .divider-label.dl-overdue{color:#ff8a80;border-color:rgba(192,57,43,0.35)}
 .divider-label.dl-urgent{color:var(--wsav-gold);border-color:rgba(212,160,23,0.3)}
 .divider-label.dl-issued{color:#7ec8f5;border-color:rgba(52,152,219,0.25)}
-.divider-label.dl-feedback{color:#5ba4f5;border-color:rgba(91,164,245,0.3)}
+.divider-label.dl-feedback{color:#D4A017;border-color:rgba(212,160,23,0.3)}
 
 /* ── Cards ── */
 .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:1.5rem}
@@ -122,7 +122,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .prog-bar.pb-issued{background:linear-gradient(90deg,#1a7abf,#7ec8f5)}
 .prog-bar.pb-approved{background:linear-gradient(90deg,#1e8449,#6ee68b)}
 .prog-bar.pb-onhold{background:#3d1a1a}
-.prog-bar.pb-feedback{background:linear-gradient(90deg,#1a2a4a,#5ba4f5)}
+.prog-bar.pb-feedback{background:linear-gradient(90deg,#2a1a00,#D4A017)}
 /* due badge */
 .due-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .due-normal{background:rgba(138,173,169,0.1);color:var(--wsav-text-muted);border:1px solid var(--wsav-border)}
@@ -145,14 +145,14 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .card-status-wrap.ss-approved .card-status-select{background:rgba(46,204,113,0.18);color:#6ee68b;border:1px solid rgba(46,204,113,0.3)}
 .card-status-wrap.ss-issued .card-status-select{background:rgba(52,152,219,0.18);color:#7ec8f5;border:1px solid rgba(52,152,219,0.3)}
 .card-status-wrap.ss-onhold .card-status-select{background:rgba(192,57,43,0.18);color:#ff8a80;border:1px solid rgba(192,57,43,0.3)}
-.card-status-wrap.ss-feedback .card-status-select{background:rgba(91,164,245,0.15);color:#5ba4f5;border:1px solid rgba(91,164,245,0.3)}
+.card-status-wrap.ss-feedback .card-status-select{background:rgba(212,160,23,0.15);color:#D4A017;border:1px solid rgba(212,160,23,0.3)}
 .card-status-arrow{position:absolute;right:6px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:8px}
 .card-status-wrap.ss-design .card-status-arrow{color:#c9a6ff}
 .card-status-wrap.ss-review .card-status-arrow{color:#D4A017}
 .card-status-wrap.ss-approved .card-status-arrow{color:#6ee68b}
 .card-status-wrap.ss-issued .card-status-arrow{color:#7ec8f5}
 .card-status-wrap.ss-onhold .card-status-arrow{color:#ff8a80}
-.card-status-wrap.ss-feedback .card-status-arrow{color:#5ba4f5}
+.card-status-wrap.ss-feedback .card-status-arrow{color:#D4A017}
 .card-status-select option{background:#0a2e29;color:#fff;font-size:12px}
 .card-footer{border-top:1px solid var(--wsav-border);padding-top:8px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
 .card-date{font-size:10px;color:var(--wsav-text-muted)}
@@ -267,7 +267,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .drawings-ready-toggle.active .drt-switch::after{transform:translateX(18px)}
 /* Drawings-ready badge on card */
 .dr-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(46,204,113,0.15);color:#6ee68b;border:1px solid rgba(46,204,113,0.35);display:flex;align-items:center;gap:4px;white-space:nowrap}
-.feedback-icon{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#5ba4f5;background:rgba(91,164,245,0.12);border:1px solid rgba(91,164,245,0.35);border-radius:20px;padding:3px 9px;white-space:nowrap}
+.feedback-icon{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#D4A017;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.35);border-radius:20px;padding:3px 9px;white-space:nowrap}
 /* Archive & last modified */
 .archive-action-btn{background:none;border:1px solid var(--wsav-border-light);border-radius:6px;color:var(--wsav-text-muted);font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;font-family:inherit;transition:all 0.15s}
 .archive-action-btn:hover{border-color:var(--wsav-gold-muted);color:var(--wsav-gold)}
@@ -811,7 +811,9 @@ const spDelete=ep=>spFetch(ep,{method:'POST',headers:{'X-HTTP-Method':'DELETE','
 const SP_API=`/web/lists/getbytitle('${encodeURIComponent(SP_LIST)}')/items`;
 
 async function spLoadAll(){
-  const data=await spGet(`${SP_API}?$orderby=Created desc&$top=500`);
+  const select='$select=Id,Title,ProjectName,ProjectCode,AssignedPM,TechLead,ScopeOfWorks,CADNotes,FloorType,SalesType,RequiredByDate,Priority,RequestStatus,Archived,Author/Title,Created,LastModifiedBy,LastModifiedAt,FolderUrl,DrawingTypes,RevisionType,RevisionRef,DrawingsReady,AllocatedDesigner';
+  const expand='$expand=Author';
+  const data=await spGet(`${SP_API}?${select}&${expand}&$orderby=Created desc&$top=500`);
   return (data.value||[]).map(mapSP);
 }
 
@@ -839,7 +841,7 @@ function mapSP(item){
     drawingTypes:item.DrawingTypes?(item.DrawingTypes.split(',').map(s=>s.trim()).filter(Boolean)):[],
     revisionType:item.RevisionType||'',
     revisionRef:item.RevisionRef||'',
-    drawingsReady:item.DrawingsReady||false,
+    drawingsReady:item.DrawingsReady===true,
     allocatedDesigner:item.AllocatedDesigner||''
   };
 }
@@ -850,6 +852,7 @@ async function spCreate(payload){
     AssignedPM:payload.pm, TechLead:payload.lead, ScopeOfWorks:payload.scope,
     FloorType:payload.floorType, SalesType:payload.sales, RequiredByDate:payload.requiredBy,
     Priority:payload.priority, RequestStatus:'In Design', Archived:false,
+    DrawingsReady:false,
     FolderUrl:payload.folderUrl||'',
     DrawingTypes:(payload.drawingTypes||[]).join(','),
     RevisionType:payload.revisionType||'',
@@ -862,16 +865,19 @@ async function spCreate(payload){
 async function spSave(req){
   if(!req.spId||req.spId>=2147483647) return;
   await spMerge(`${SP_API}(${req.spId})`,{
-    RequestStatus:req.status, Archived:req.archived,
+    RequestStatus:req.status||'In Design',
+    Archived:req.archived===true,
     CADNotes:req.notes||'',
-    DrawingsReady:req.drawingsReady||false,
-    AllocatedDesigner:req.allocatedDesigner||'',
-    AssignedPM:req.pm||'', TechLead:req.lead||'',
-    ScopeOfWorks:req.scope||'', FloorType:req.floorType||'',
-    SalesType:req.sales||'', RequiredByDate:req.requiredBy||null,
+    DrawingsReady:req.drawingsReady===true,
+    AssignedPM:req.pm||'',
+    TechLead:req.lead||'',
+    ScopeOfWorks:req.scope||'',
+    FloorType:req.floorType||'',
+    SalesType:req.sales||'',
+    RequiredByDate:req.requiredBy||null,
     Priority:req.priority||'P2',
     FolderUrl:req.folderUrl||'',
-    DrawingTypes:(req.drawingTypes||[]).join(','),
+    DrawingTypes:Array.isArray(req.drawingTypes)?req.drawingTypes.join(','):'',
     RevisionType:req.revisionType||'',
     RevisionRef:req.revisionRef||'',
     LastModifiedBy:req.lastModifiedBy||'',
@@ -898,7 +904,7 @@ function saveRequest(req){
       await spSave(req);
       setSyncing(false,'SharePoint Synced');
     }catch(e){
-      setSyncing(false,'Save Error','error');
+      setSyncing(false,'Save Error — '+e.message.split(':')[0],'error');
       console.warn('SP save failed:',e);
     }finally{
       pendingSaves.delete(req.spId);
@@ -1039,7 +1045,7 @@ let selectedFiles=[], openDetailId=null;
 const STATUSES=['In Design','In Review','Approved','Issued','Feedback','On Hold'];
 const STATUS_LABEL={'In Design':'In Design','In Review':'In Review','Approved':'Approved','Issued':'Issued','Feedback':'Feedback','On Hold':'On Hold'};
 const STATUS_CLASS={'In Design':'ss-design','In Review':'ss-review','Approved':'ss-approved','Issued':'ss-issued','Feedback':'ss-feedback','On Hold':'ss-onhold'};
-const STATUS_TOP={'In Design':'#c9a6ff','In Review':'#D4A017','Approved':'#6ee68b','Issued':'#7ec8f5','Feedback':'#5ba4f5','On Hold':'#ff8a80'};
+const STATUS_TOP={'In Design':'#c9a6ff','In Review':'#D4A017','Approved':'#6ee68b','Issued':'#7ec8f5','Feedback':'#D4A017','On Hold':'#ff8a80'};
 const STATUS_PROG={'In Design':20,'In Review':50,'Approved':75,'Issued':100,'Feedback':90,'On Hold':10};
 const PROG_CLASS={'Issued':'pb-issued','Approved':'pb-approved','Feedback':'pb-feedback','On Hold':'pb-onhold'};
 
@@ -1902,8 +1908,8 @@ document.getElementById('ex-generate').addEventListener('click',function(){
   const urgent=projects.filter(r=>dueStatus(r.requiredBy)==='urgent'&&r.status!=='Issued');
   const p1=projects.filter(r=>r.priority==='P1');
 
-  const sc=s=>({'In Design':'#c9a6ff','In Review':'#D4A017','Approved':'#6ee68b','Issued':'#7ec8f5','Feedback':'#5ba4f5','On Hold':'#ff8a80'}[s]||'#8aada9');
-  const sb=s=>({'In Design':'rgba(147,112,219,0.15)','In Review':'rgba(212,160,23,0.15)','Approved':'rgba(46,204,113,0.15)','Issued':'rgba(52,152,219,0.15)','Feedback':'rgba(91,164,245,0.15)','On Hold':'rgba(192,57,43,0.15)'}[s]||'rgba(138,173,169,0.1)');
+  const sc=s=>({'In Design':'#c9a6ff','In Review':'#D4A017','Approved':'#6ee68b','Issued':'#7ec8f5','Feedback':'#D4A017','On Hold':'#ff8a80'}[s]||'#8aada9');
+  const sb=s=>({'In Design':'rgba(147,112,219,0.15)','In Review':'rgba(212,160,23,0.15)','Approved':'rgba(46,204,113,0.15)','Issued':'rgba(52,152,219,0.15)','Feedback':'rgba(212,160,23,0.15)','On Hold':'rgba(192,57,43,0.15)'}[s]||'rgba(138,173,169,0.1)');
   const sbd=s=>({'In Design':'rgba(147,112,219,0.3)','In Review':'rgba(212,160,23,0.3)','Approved':'rgba(46,204,113,0.3)','Issued':'rgba(52,152,219,0.3)','On Hold':'rgba(192,57,43,0.3)'}[s]||'rgba(138,173,169,0.2)');
   const bar=(pct,col)=>`<div style="background:#0a2e29;border-radius:4px;overflow:hidden;height:6px"><div style="height:6px;border-radius:4px;background:${col};width:${pct}%"></div></div>`;
 
@@ -2013,7 +2019,7 @@ document.getElementById('sp-banner-close').addEventListener('click',()=>document
 function setSyncing(on,msg='Syncing…',st=''){
   const dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label');
   dot.className='sync-dot'+(on?' syncing':st==='error'?' error':'');
-  lbl.textContent=on?'Syncing…':msg;
+  lbl.textContent=msg;
 }
 function showLoadingOverlay(msg){
   document.getElementById('loading-sub').textContent=msg||'Loading…';
