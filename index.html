@@ -865,10 +865,14 @@ async function spCreate(payload){
 async function spSave(req){
   if(!req.spId||req.spId>=2147483647) return;
   await spMerge(`${SP_API}(${req.spId})`,{
+    Title:req.projectName,
+    ProjectName:req.projectName,
+    ProjectCode:req.projectCode,
     RequestStatus:req.status||'In Design',
     Archived:req.archived===true,
     CADNotes:req.notes||'',
     DrawingsReady:req.drawingsReady===true,
+    AllocatedDesigner:req.allocatedDesigner||'',
     AssignedPM:req.pm||'',
     TechLead:req.lead||'',
     ScopeOfWorks:req.scope||'',
@@ -1480,11 +1484,11 @@ function renderPanelContent(r){
     r.sales=document.getElementById('dp-sales').value;
     r.floorType=document.getElementById('dp-floor').value;
     r.scope=document.getElementById('dp-scope').value.trim();
+    r.notes=document.getElementById('dp-notes').value;
     const fuEl=document.getElementById('dp-folder-url'); if(fuEl) r.folderUrl=fuEl.value.trim();
-    // Drawing types
+    const desEl=document.getElementById('dp-designer'); if(desEl) r.allocatedDesigner=desEl.value.trim().toUpperCase();
     const dtChecks=document.querySelectorAll('#dp-drawing-types input[type=checkbox]');
     if(dtChecks.length) r.drawingTypes=Array.from(dtChecks).filter(c=>c.checked).map(c=>c.value);
-    // Update panel header live
     if(name){ document.getElementById('panel-title-text').textContent=r.projectName; }
     if(code){ document.getElementById('panel-code-text').textContent=r.projectCode; }
     saveRequest(r); renderStats(); renderGrid(); flashSaved();
@@ -1514,31 +1518,24 @@ function renderPanelContent(r){
   document.getElementById('dp-sales').onchange=saveFields;
   document.getElementById('dp-floor').onchange=saveFields;
 
-  // Allocated designer — initials input + autosave
+  // Allocated designer — live badge update + autosave via saveFields
   const dpDesigner=document.getElementById('dp-designer');
   const adBadge=document.getElementById('ad-badge');
-  let designerTimer;
   dpDesigner.oninput=function(){
     const initials=this.value.trim().toUpperCase()||'?';
     adBadge.textContent=initials;
     adBadge.className=this.value.trim()?'pm-badge':'pm-badge pm-badge-unset';
     adBadge.style.cssText='width:36px;height:36px;font-size:13px;flex-shrink:0';
-    clearTimeout(designerTimer);
-    designerTimer=setTimeout(()=>{
-      r.allocatedDesigner=this.value.trim().toUpperCase();
-      const cardBadge=document.querySelector(`[data-id="${r.spId||r.id}"] .pm-badge, [data-id="${r.spId||r.id}"] .pm-badge-unset`);
-      if(cardBadge){
-        cardBadge.textContent=r.allocatedDesigner||'?';
-        cardBadge.className=r.allocatedDesigner?'pm-badge':'pm-badge pm-badge-unset';
-        cardBadge.title=r.allocatedDesigner?`Designer: ${r.allocatedDesigner}`:'No designer allocated';
-      }
-      saveRequest(r); flashSaved();
-    },700);
+    const cardBadge=document.querySelector(`[data-id="${r.spId||r.id}"] .pm-badge, [data-id="${r.spId||r.id}"] .pm-badge-unset`);
+    if(cardBadge){
+      cardBadge.textContent=initials;
+      cardBadge.className=this.value.trim()?'pm-badge':'pm-badge pm-badge-unset';
+      cardBadge.title=this.value.trim()?`Designer: ${initials}`:'No designer allocated';
+    }
+    clearTimeout(editTimer); editTimer=setTimeout(saveFields,700);
   };
 
-  // Notes autosave
-  let notesTimer;
-  document.getElementById('dp-notes').oninput=function(){ r.notes=this.value; clearTimeout(notesTimer); notesTimer=setTimeout(()=>{ saveRequest(r); flashSaved(); },800); };
+  document.getElementById('dp-notes').oninput=function(){ clearTimeout(editTimer); editTimer=setTimeout(saveFields,700); };
 
   // Drawings-ready toggle — email requester when marked ready
   document.getElementById('dr-toggle').onclick=function(){
