@@ -743,7 +743,16 @@ async function initMSAL(){
     });
     await msalInstance.initialize();
   }
-  try{ await msalInstance.handleRedirectPromise(); }catch(e){}
+  // Handle the redirect return — picks up account after loginRedirect
+  try{
+    const redirectResult=await msalInstance.handleRedirectPromise();
+    if(redirectResult){
+      spAccount=redirectResult.account;
+      spToken=redirectResult.accessToken;
+      return true;
+    }
+  }catch(e){ console.warn('Redirect handle error:',e); }
+  // Check for existing session
   const accounts=msalInstance.getAllAccounts();
   if(accounts.length>0){
     spAccount=accounts[0];
@@ -756,10 +765,9 @@ async function initMSAL(){
 }
 
 async function signInWithMicrosoft(){
-  const res=await msalInstance.loginPopup({scopes:SP_SCOPES});
-  spAccount=res.account;
-  const tr=await msalInstance.acquireTokenSilent({scopes:SP_SCOPES,account:spAccount});
-  spToken=tr.accessToken;
+  // Use redirect instead of popup — avoids block_nested_popups error
+  await msalInstance.loginRedirect({scopes:SP_SCOPES});
+  // Page will navigate away and return — execution stops here
 }
 
 async function refreshSPToken(){
@@ -868,20 +876,28 @@ async function spSave(req){
 
 /* ─── Debounced save ─── */
 const saveTimers={};
+const pendingSaves=new Set();
 function saveRequest(req){
   const name=spAccount?(spAccount.name||spAccount.username||'Unknown'):'Local';
   req.lastModifiedBy=name;
   req.lastModifiedAt=new Date().toISOString();
-  // Update last-modified line in panel if open
   const lmEl=document.getElementById('dp-last-modified');
   if(lmEl) lmEl.innerHTML=modifiedHtml(req);
-  saveLocal();
+  saveLocal(); // Always persist to localStorage immediately
   if(!spEnabled||!spAccount) return;
   clearTimeout(saveTimers[req.spId]);
+  pendingSaves.add(req.spId);
   saveTimers[req.spId]=setTimeout(async()=>{
     setSyncing(true,'Saving…');
-    try{ await spSave(req); setSyncing(false,'SharePoint Synced'); }
-    catch(e){ setSyncing(false,'Save Error','error'); console.warn('SP save failed:',e); }
+    try{
+      await spSave(req);
+      setSyncing(false,'SharePoint Synced');
+    }catch(e){
+      setSyncing(false,'Save Error','error');
+      console.warn('SP save failed:',e);
+    }finally{
+      pendingSaves.delete(req.spId);
+    }
   },700);
 }
 
@@ -897,8 +913,8 @@ async function syncFromSP(){
     state.requests.forEach(local=>{
       if(local.spId && spById[local.spId]){
         const sp=spById[local.spId];
-        // SP wins on all fields — unless a save is pending for this item
-        if(!saveTimers[local.spId]){
+        // Don't overwrite if a save is pending or in flight for this item
+        if(!saveTimers[local.spId] && !pendingSaves.has(local.spId)){
           Object.assign(local,sp);
         }
       }
@@ -2034,18 +2050,11 @@ async function init(){
 
 document.getElementById('signin-btn').addEventListener('click',async function(){
   const err=document.getElementById('signin-error');
-  this.disabled=true; this.textContent='Signing In…'; err.classList.remove('visible');
+  this.disabled=true; this.textContent='Redirecting…'; err.classList.remove('visible');
   try{
     if(!msalInstance) await initMSAL();
     await signInWithMicrosoft();
-    spEnabled=true;
-    document.getElementById('signin-screen').classList.add('hidden');
-    const name=(spAccount.name||spAccount.username||'').split(' ')[0];
-    const pill=document.getElementById('user-pill'); pill.textContent=name; pill.style.display='block';
-    setSyncing(true,'Syncing…');
-    await syncFromSP();
-    renderStats(); renderGrid();
-    setInterval(async()=>{ await syncFromSP(); renderStats(); renderGrid(); },120000);
+    // Page navigates away here — no further code runs until redirect returns
   }catch(e){
     if(e.errorCode==='popup_window_error') err.textContent='Popup was blocked — please allow popups for this page and try again.';
     else if(e.errorCode==='user_cancelled') err.textContent='Sign-in was cancelled.';
