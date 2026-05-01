@@ -398,12 +398,12 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 
 <!-- STATS -->
 <div class="stats-row">
-  <div class="stat-cell"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Planning</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-design">0</div><div class="stat-lbl">Scheduled</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-review">0</div><div class="stat-lbl">In Progress</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-approved">0</div><div class="stat-lbl">Snagging</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-issued">0</div><div class="stat-lbl">Complete</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-indesign">0</div><div class="stat-lbl">In Design</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-inreview">0</div><div class="stat-lbl">In Review</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-approved">0</div><div class="stat-lbl">Approved</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-issued">0</div><div class="stat-lbl">Issued</div></div>
   <div class="stat-cell"><div class="stat-num" id="s-feedback">0</div><div class="stat-lbl">Feedback</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-onhold">0</div><div class="stat-lbl">On Hold</div></div>
 </div>
 
 <!-- BODY -->
@@ -1060,12 +1060,12 @@ function getDemoData(){
 ═══════════════════════════════ */
 function renderStats(){
   const a=state.requests.filter(r=>!r.archived);
-  document.getElementById('s-total').textContent=a.length;
-  document.getElementById('s-design').textContent=a.filter(r=>r.status==='In Design').length;
-  document.getElementById('s-review').textContent=a.filter(r=>r.status==='In Review').length;
+  document.getElementById('s-indesign').textContent=a.filter(r=>r.status==='In Design').length;
+  document.getElementById('s-inreview').textContent=a.filter(r=>r.status==='In Review').length;
   document.getElementById('s-approved').textContent=a.filter(r=>r.status==='Approved').length;
-  document.getElementById('s-feedback').textContent=a.filter(r=>r.status==='Feedback').length;
   document.getElementById('s-issued').textContent=a.filter(r=>r.status==='Issued').length;
+  document.getElementById('s-feedback').textContent=a.filter(r=>r.status==='Feedback').length;
+  document.getElementById('s-onhold').textContent=a.filter(r=>r.status==='On Hold').length;
 }
 
 function renderUrgentBanner(){
@@ -1133,13 +1133,7 @@ function makeCard(req,isArchive){
   }
 
   // PM initials (up to 2 chars)
-  const leadInitials=(()=>{
-    const name=req.allocatedDesigner||'';
-    if(!name) return '?';
-    const parts=name.trim().split(/\s+/);
-    if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
-    return parts[0].substring(0,2).toUpperCase();
-  })();
+  const leadInitials=(req.allocatedDesigner||'?').toUpperCase();
   const pmBadgeClass=req.allocatedDesigner ? 'pm-badge' : 'pm-badge pm-badge-unset';
   const pmTitle=req.allocatedDesigner ? `Designer: ${req.allocatedDesigner}` : 'No designer allocated';
 
@@ -1289,8 +1283,8 @@ function renderPanelContent(r){
       <div class="panel-field" style="margin-bottom:14px">
         <div class="panel-field-label">Allocated Designer</div>
         <div style="display:flex;align-items:center;gap:10px">
-          <span id="ad-badge" class="${r.allocatedDesigner?'pm-badge':'pm-badge pm-badge-unset'}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${r.allocatedDesigner?(()=>{const p=r.allocatedDesigner.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():p[0].substring(0,2).toUpperCase();})():'?'}</span>
-          <input class="panel-input" type="text" id="dp-designer" value="${esc(r.allocatedDesigner||'')}" placeholder="Full name — e.g. Jez Morris" style="flex:1"/>
+          <span id="ad-badge" class="${r.allocatedDesigner?'pm-badge':'pm-badge pm-badge-unset'}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${(r.allocatedDesigner||'?').toUpperCase()}</span>
+          <input class="panel-input" type="text" id="dp-designer" value="${esc(r.allocatedDesigner||'')}" placeholder="e.g. JM" maxlength="3" style="flex:1;text-transform:uppercase;letter-spacing:0.1em"/>
         </div>
       </div>
       <!-- Drawings Ready toggle -->
@@ -1377,6 +1371,17 @@ function renderPanelContent(r){
       </div>
     </div>
 
+    <!-- Drawing Types -->
+    <div class="panel-section">
+      <div class="section-head">Drawing Types</div>
+      <div class="drawing-type-grid" id="dp-drawing-types" style="margin-top:4px">
+        ${['Floor Plan','Rack Elevation','Elevation','Cable Schedule','Schematic / Signal Flow','As-Built Drawing','Conceptual Design','Network / IP Diagram'].map(dt=>`
+          <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:var(--wsav-input);border:1px solid ${(r.drawingTypes||[]).includes(dt)?'rgba(212,160,23,0.4)':'var(--wsav-border)'};cursor:pointer;transition:border-color 0.15s" class="dp-dt-label">
+            <input type="checkbox" value="${dt}" ${(r.drawingTypes||[]).includes(dt)?'checked':''} style="accent-color:var(--wsav-gold);width:14px;height:14px;flex-shrink:0"/>
+            <span style="font-size:12px;color:var(--wsav-offwhite);font-weight:500">${dt}</span>
+          </label>`).join('')}
+      </div>
+
     <!-- Project Folder -->
     <div class="panel-section">
       <div class="section-head">Project Folder</div>
@@ -1449,11 +1454,22 @@ function renderPanelContent(r){
     r.floorType=document.getElementById('dp-floor').value;
     r.scope=document.getElementById('dp-scope').value.trim();
     const fuEl=document.getElementById('dp-folder-url'); if(fuEl) r.folderUrl=fuEl.value.trim();
+    // Drawing types
+    const dtChecks=document.querySelectorAll('#dp-drawing-types input[type=checkbox]');
+    if(dtChecks.length) r.drawingTypes=Array.from(dtChecks).filter(c=>c.checked).map(c=>c.value);
     // Update panel header live
     if(name){ document.getElementById('panel-title-text').textContent=r.projectName; }
     if(code){ document.getElementById('panel-code-text').textContent=r.projectCode; }
     saveRequest(r); renderStats(); renderGrid(); flashSaved();
   }
+
+  // Drawing type checkboxes — update border colour on toggle + autosave
+  document.querySelectorAll('#dp-drawing-types input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',function(){
+      this.closest('label').style.borderColor=this.checked?'rgba(212,160,23,0.4)':'var(--wsav-border)';
+      saveFields();
+    });
+  });
 
   // Text inputs — debounced oninput (matches Project Dashboard dp-name pattern)
   let editTimer;
@@ -1471,27 +1487,21 @@ function renderPanelContent(r){
   document.getElementById('dp-sales').onchange=saveFields;
   document.getElementById('dp-floor').onchange=saveFields;
 
-  // Allocated designer — live initials preview + autosave
+  // Allocated designer — initials input + autosave
   const dpDesigner=document.getElementById('dp-designer');
   const adBadge=document.getElementById('ad-badge');
-  function designerInitials(name){
-    if(!name.trim()) return '?';
-    const p=name.trim().split(/\s+/);
-    return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():p[0].substring(0,2).toUpperCase();
-  }
   let designerTimer;
   dpDesigner.oninput=function(){
-    const initials=designerInitials(this.value);
+    const initials=this.value.trim().toUpperCase()||'?';
     adBadge.textContent=initials;
     adBadge.className=this.value.trim()?'pm-badge':'pm-badge pm-badge-unset';
     adBadge.style.cssText='width:36px;height:36px;font-size:13px;flex-shrink:0';
     clearTimeout(designerTimer);
     designerTimer=setTimeout(()=>{
-      r.allocatedDesigner=this.value.trim();
-      // Update card badge live
+      r.allocatedDesigner=this.value.trim().toUpperCase();
       const cardBadge=document.querySelector(`[data-id="${r.spId||r.id}"] .pm-badge, [data-id="${r.spId||r.id}"] .pm-badge-unset`);
       if(cardBadge){
-        cardBadge.textContent=designerInitials(r.allocatedDesigner);
+        cardBadge.textContent=r.allocatedDesigner||'?';
         cardBadge.className=r.allocatedDesigner?'pm-badge':'pm-badge pm-badge-unset';
         cardBadge.title=r.allocatedDesigner?`Designer: ${r.allocatedDesigner}`:'No designer allocated';
       }
