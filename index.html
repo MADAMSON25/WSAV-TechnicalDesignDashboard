@@ -58,6 +58,9 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .stat-cell{background:var(--wsav-dark);padding:18px 24px;text-align:center}
 .stat-num{font-size:32px;font-weight:700;color:var(--wsav-gold)}
 .stat-lbl{font-size:11px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
+.stat-clickable{cursor:pointer;transition:background 0.15s}
+.stat-clickable:hover{background:var(--wsav-dark2)}
+.stat-clickable.stat-active{background:var(--wsav-dark2);box-shadow:inset 0 -2px 0 var(--wsav-gold)}
 
 /* ── Body ── */
 .body{padding:1.25rem 1.5rem;flex:1;min-width:0}
@@ -153,6 +156,8 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .card-status-wrap.ss-issued .card-status-arrow{color:#7ec8f5}
 .card-status-wrap.ss-onhold .card-status-arrow{color:#ff8a80}
 .card-status-wrap.ss-feedback .card-status-arrow{color:#D4A017}
+.card-status-wrap.ss-notstarted .card-status-select{background:rgba(138,173,169,0.12);color:#8aada9;border:1px solid rgba(138,173,169,0.3)}
+.card-status-wrap.ss-notstarted .card-status-arrow{color:#8aada9}
 .card-status-select option{background:#0a2e29;color:#fff;font-size:12px}
 .card-footer{border-top:1px solid var(--wsav-border);padding-top:8px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
 .card-date{font-size:10px;color:var(--wsav-text-muted)}
@@ -306,6 +311,20 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .confirm-overlay{position:fixed;inset:0;z-index:1000;background:rgba(8,37,32,0.97);display:none;align-items:center;justify-content:center;animation:fadeIn 0.2s ease}
 .confirm-overlay.open{display:flex}
 .confirm-card{background:var(--wsav-dark);border:1px solid var(--wsav-border-light);border-radius:16px;padding:2.5rem 2rem;width:480px;max-width:95vw;text-align:center;animation:fadeUp 0.22s ease}
+/* ── Email picker ── */
+.email-picker-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.6);align-items:center;justify-content:center}
+.email-picker-bg.open{display:flex}
+.email-picker{background:var(--wsav-dark);border:1px solid var(--wsav-border-light);border-radius:12px;padding:1.5rem 1.75rem;width:380px;max-width:95vw;animation:fadeUp 0.18s ease}
+.email-picker-title{font-size:13px;font-weight:700;color:var(--wsav-gold);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.email-picker-sub{font-size:12px;color:var(--wsav-text-muted);margin-bottom:1.25rem;line-height:1.5}
+.email-picker-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+.email-picker-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--wsav-input);border:1px solid var(--wsav-border);border-radius:8px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:left;width:100%;font-family:inherit}
+.email-picker-opt:hover{border-color:var(--wsav-gold-muted);background:rgba(212,160,23,0.06)}
+.email-picker-opt-icon{font-size:20px;flex-shrink:0}
+.email-picker-opt-label{font-size:13px;font-weight:600;color:var(--wsav-offwhite)}
+.email-picker-opt-desc{font-size:11px;color:var(--wsav-text-muted);margin-top:1px}
+.email-picker-cancel{background:none;border:none;color:var(--wsav-text-muted);font-size:12px;cursor:pointer;width:100%;padding:4px;font-family:inherit}
+.email-picker-cancel:hover{color:var(--wsav-gold)}
 .confirm-icon{font-size:44px;margin-bottom:16px}
 .confirm-title{font-size:18px;font-weight:700;color:var(--wsav-gold);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
 .confirm-sub{font-size:13px;color:var(--wsav-text-muted);line-height:1.6;margin-bottom:24px}
@@ -398,12 +417,13 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 
 <!-- STATS -->
 <div class="stats-row">
-  <div class="stat-cell"><div class="stat-num" id="s-indesign">0</div><div class="stat-lbl">In Design</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-inreview">0</div><div class="stat-lbl">In Review</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-approved">0</div><div class="stat-lbl">Approved</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-issued">0</div><div class="stat-lbl">Issued</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-feedback">0</div><div class="stat-lbl">Feedback</div></div>
-  <div class="stat-cell"><div class="stat-num" id="s-onhold">0</div><div class="stat-lbl">On Hold</div></div>
+  <div class="stat-cell stat-clickable" data-filter="Not Started" title="Filter by Not Started"><div class="stat-num" id="s-notstarted" style="color:#8aada9">0</div><div class="stat-lbl">Not Started</div></div>
+  <div class="stat-cell stat-clickable" data-filter="In Design" title="Filter by In Design"><div class="stat-num" id="s-indesign">0</div><div class="stat-lbl">In Design</div></div>
+  <div class="stat-cell stat-clickable" data-filter="In Review" title="Filter by In Review"><div class="stat-num" id="s-inreview">0</div><div class="stat-lbl">In Review</div></div>
+  <div class="stat-cell stat-clickable" data-filter="Feedback" title="Filter by Feedback"><div class="stat-num" id="s-feedback">0</div><div class="stat-lbl">Feedback</div></div>
+  <div class="stat-cell stat-clickable" data-filter="Approved" title="Filter by Approved"><div class="stat-num" id="s-approved">0</div><div class="stat-lbl">Approved</div></div>
+  <div class="stat-cell stat-clickable" data-filter="Issued" title="Filter by Issued"><div class="stat-num" id="s-issued">0</div><div class="stat-lbl">Issued</div></div>
+  <div class="stat-cell stat-clickable" data-filter="On Hold" title="Filter by On Hold"><div class="stat-num" id="s-onhold">0</div><div class="stat-lbl">On Hold</div></div>
 </div>
 
 <!-- BODY -->
@@ -417,11 +437,11 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
   <div class="toolbar">
     <div class="search-wrap"><input class="wsav-input" type="text" id="search" placeholder="Search by project name, code, PM or lead…"/></div>
     <select class="wsav-input" id="sort-select" style="font-size:12px;padding:9px 12px;cursor:pointer">
-      <option value="date-asc">Sort: Required Date ↑</option>
+      <option value="date-asc" selected>Sort: Required Date ↑</option>
       <option value="date-desc">Sort: Required Date ↓</option>
       <option value="code-asc">Sort: Project Code ↑</option>
       <option value="code-desc">Sort: Project Code ↓</option>
-      <option value="added-desc" selected>Sort: Newest First</option>
+      <option value="added-desc">Sort: Newest First</option>
       <option value="added-asc">Sort: Oldest First</option>
       <option value="priority">Sort: P1 First</option>
     </select>
@@ -438,6 +458,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
   </div>
   <div class="filter-row">
     <button type="button" class="filter-btn active" data-filter="all">All</button>
+    <button type="button" class="filter-btn" data-filter="Not Started">Not Started</button>
     <button type="button" class="filter-btn" data-filter="In Design">In Design</button>
     <button type="button" class="filter-btn" data-filter="In Review">In Review</button>
     <button type="button" class="filter-btn" data-filter="Approved">Approved</button>
@@ -716,6 +737,25 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
   </div>
 </div>
 
+<!-- EMAIL PICKER -->
+<div class="email-picker-bg" id="email-picker-bg">
+  <div class="email-picker">
+    <div class="email-picker-title">Send Notification</div>
+    <div class="email-picker-sub" id="email-picker-sub">Choose how to open the email</div>
+    <div class="email-picker-btns">
+      <button type="button" class="email-picker-opt" id="ep-web">
+        <span class="email-picker-opt-icon">🌐</span>
+        <div><div class="email-picker-opt-label">Outlook Web</div><div class="email-picker-opt-desc">Opens in your browser — works without the desktop app</div></div>
+      </button>
+      <button type="button" class="email-picker-opt" id="ep-app">
+        <span class="email-picker-opt-icon">📧</span>
+        <div><div class="email-picker-opt-label">Outlook App</div><div class="email-picker-opt-desc">Opens in the desktop Outlook application</div></div>
+      </button>
+    </div>
+    <button type="button" class="email-picker-cancel" id="ep-cancel">Cancel — do not send email</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -728,7 +768,6 @@ const SP_SITE         = 'https://workspaceav1.sharepoint.com/sites/Engineering';
 const SP_LIST         = 'TechnicalDesignRequests';
 const SP_DOC_LIB      = 'Technical Design Files';
 const SP_SCOPES       = ['https://workspaceav1.sharepoint.com/.default'];
-const STORAGE_KEY     = 'wsav_techdesign_v2';
 
 /* ═══════════════════════════════
    MSAL
@@ -831,7 +870,7 @@ function mapSP(item){
     sales:item.SalesType||'—',
     requiredBy:item.RequiredByDate?item.RequiredByDate.substring(0,10):'',
     priority:item.Priority||'P2',
-    status:item.RequestStatus||'In Design',
+    status:item.RequestStatus||'Not Started',
     archived:item.Archived||false,
     createdBy:item.Author?.Title||'',
     created:item.Created?item.Created.substring(0,10):'',
@@ -851,7 +890,7 @@ async function spCreate(payload){
     Title:payload.projectName, ProjectName:payload.projectName, ProjectCode:payload.projectCode,
     AssignedPM:payload.pm, TechLead:payload.lead, ScopeOfWorks:payload.scope,
     FloorType:payload.floorType, SalesType:payload.sales, RequiredByDate:payload.requiredBy,
-    Priority:payload.priority, RequestStatus:'In Design', Archived:false,
+    Priority:payload.priority, RequestStatus:'Not Started', Archived:false,
     DrawingsReady:false,
     FolderUrl:payload.folderUrl||'',
     DrawingTypes:(payload.drawingTypes||[]).join(','),
@@ -897,8 +936,7 @@ function saveRequest(req){
   req.lastModifiedBy=name;
   req.lastModifiedAt=new Date().toISOString();
   const lmEl=document.getElementById('dp-last-modified');
-  if(lmEl) lmEl.innerHTML=modifiedHtml(req);
-  saveLocal(); // Always persist to localStorage immediately
+  if(lmEl) lmEl.innerHTML=modifiedHtml(req); // Always persist to localStorage immediately
   if(!spEnabled||!spAccount) return;
   clearTimeout(saveTimers[req.spId]);
   pendingSaves.add(req.spId);
@@ -944,7 +982,6 @@ async function syncFromSP(){
     for(const r of toCreate){
       try{ r.spId=await spCreate(r); r.id=r.spId; }catch(e){ console.warn('SP push failed:',r.projectName,e); }
     }
-    saveLocal();
     setSyncing(false,'SharePoint Synced');
     // Only re-render if the raise form is not currently open — avoids clearing in-progress entries
     if(!raiseFormOpen){ renderStats(); renderGrid(); }
@@ -1030,27 +1067,16 @@ async function spGetFolderFiles(projectCode){
 }
 
 /* ═══════════════════════════════
-   LOCAL STORAGE
-═══════════════════════════════ */
-function saveLocal(){
-  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state.requests)); }catch(e){}
-}
-function loadLocal(){
-  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) return JSON.parse(r); }catch(e){}
-  return getDemoData();
-}
-
-/* ═══════════════════════════════
    STATE & HELPERS
 ═══════════════════════════════ */
-const state={requests:[],filter:'all',search:'',filterFloor:'',filterSales:'',sortMode:'added-desc',archiveOpen:false};
+const state={requests:[],filter:'all',search:'',filterFloor:'',filterSales:'',sortMode:'date-asc',archiveOpen:false};
 let selectedFiles=[], openDetailId=null;
 
-const STATUSES=['In Design','In Review','Approved','Issued','Feedback','On Hold'];
+const STATUSES=['Not Started','In Design','In Review','Approved','Issued','Feedback','On Hold'];
 const STATUS_LABEL={'In Design':'In Design','In Review':'In Review','Approved':'Approved','Issued':'Issued','Feedback':'Feedback','On Hold':'On Hold'};
-const STATUS_CLASS={'In Design':'ss-design','In Review':'ss-review','Approved':'ss-approved','Issued':'ss-issued','Feedback':'ss-feedback','On Hold':'ss-onhold'};
-const STATUS_TOP={'In Design':'#c9a6ff','In Review':'#D4A017','Approved':'#6ee68b','Issued':'#7ec8f5','Feedback':'#D4A017','On Hold':'#ff8a80'};
-const STATUS_PROG={'In Design':20,'In Review':50,'Approved':75,'Issued':100,'Feedback':90,'On Hold':10};
+const STATUS_CLASS={'Not Started':'ss-notstarted','In Design':'ss-design','In Review':'ss-review','Approved':'ss-approved','Issued':'ss-issued','Feedback':'ss-feedback','On Hold':'ss-onhold'};
+const STATUS_TOP={'Not Started':'#8aada9','In Design':'#c9a6ff','In Review':'#D4A017','Approved':'#6ee68b','Issued':'#7ec8f5','Feedback':'#D4A017','On Hold':'#ff8a80'};
+const STATUS_PROG={'Not Started':0,'In Design':20,'In Review':50,'Approved':75,'Issued':100,'Feedback':90,'On Hold':10};
 const PROG_CLASS={'Issued':'pb-issued','Approved':'pb-approved','Feedback':'pb-feedback','On Hold':'pb-onhold'};
 
 function today(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
@@ -1072,19 +1098,6 @@ function modifiedHtml(r){
   return `<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#8aada9" stroke-width="1.4"/><path d="M2 13c0-3 2.5-5 6-5s6 2 6 5" stroke="#8aada9" stroke-width="1.4" stroke-linecap="round"/></svg><span>Last updated by <strong style="color:var(--wsav-offwhite)">${esc(r.lastModifiedBy)}</strong>${r.lastModifiedAt?' on '+fmtDateTime(r.lastModifiedAt):''}</span>`;
 }
 
-/* ═══════════════════════════════
-   DEMO DATA
-═══════════════════════════════ */
-function getDemoData(){
-  return[
-    {id:1,spId:1,projectName:'Acme HQ — Level 3 Fit-Out',projectCode:'WAV-2025-001',pm:'James Thornton',lead:'Sarah Chen',scope:'Full AV infrastructure, 6 meeting rooms',notes:'',floorType:'Solid Floor Construction',sales:'Post Sales',requiredBy:'2025-07-10',priority:'P1',status:'In Design',archived:false,createdBy:'James Thornton',created:'2025-07-01',lastModifiedBy:'',lastModifiedAt:'',files:[],folderUrl:''},
-    {id:2,spId:2,projectName:'Barclays Canary Wharf — Phase 2',projectCode:'WAV-2025-002',pm:'Emma Walsh',lead:'Mark Davies',scope:'',notes:'',floorType:'Computer Raise Floor',sales:'Post Sales',requiredBy:'2025-08-30',priority:'P1',status:'In Review',archived:false,createdBy:'Emma Walsh',created:'2025-07-05',lastModifiedBy:'Mark Davies',lastModifiedAt:'2025-07-12T09:22:00Z',files:[],folderUrl:''},
-    {id:3,spId:3,projectName:'Google Campus Bid',projectCode:'WAV-2025-003',pm:'Oliver Price',lead:'Priya Sharma',scope:'Pre-sales technical design for campus bid',notes:'Design package approved by client.',floorType:'Computer Raise Floor',sales:'Pre Sales',requiredBy:'2025-06-01',priority:'P1',status:'Issued',archived:false,createdBy:'Oliver Price',created:'2025-06-20',lastModifiedBy:'Priya Sharma',lastModifiedAt:'2025-07-08T14:10:00Z',files:[],folderUrl:''},
-    {id:4,spId:4,projectName:'HSBC Victoria — Boardroom',projectCode:'WAV-2025-004',pm:'Laura Stevens',lead:'Tom Nguyen',scope:'',notes:'',floorType:'Solid Floor Construction',sales:'Post Sales',requiredBy:'2025-10-01',priority:'P2',status:'Approved',archived:false,createdBy:'Laura Stevens',created:'2025-07-10',lastModifiedBy:'',lastModifiedAt:'',files:[],folderUrl:''},
-    {id:5,spId:5,projectName:'WeWork Manchester Expansion',projectCode:'WAV-2025-005',pm:'Ryan Clark',lead:'Jessica Moore',scope:'Multi-floor coworking, 20+ rooms',notes:'Awaiting floor plans from client.',floorType:'Solid Floor Construction',sales:'Post Sales',requiredBy:'2025-07-14',priority:'P2',status:'In Design',archived:false,createdBy:'Ryan Clark',created:'2025-07-12',lastModifiedBy:'',lastModifiedAt:'',files:[],folderUrl:''},
-    {id:6,spId:6,projectName:'NHS Digital Hub — Stage 1',projectCode:'WAV-2025-006',pm:'Natasha Brown',lead:'Ahmed Patel',scope:'',notes:'On hold pending client budget approval.',floorType:'Computer Raise Floor',sales:'Pre Sales',requiredBy:'2025-07-08',priority:'P1',status:'On Hold',archived:false,createdBy:'Natasha Brown',created:'2025-07-08',lastModifiedBy:'',lastModifiedAt:'',files:[],folderUrl:''},
-  ];
-}
 
 /* ═══════════════════════════════
    RENDER
@@ -1095,6 +1108,7 @@ function renderStats(){
   document.getElementById('s-inreview').textContent=a.filter(r=>r.status==='In Review').length;
   document.getElementById('s-approved').textContent=a.filter(r=>r.status==='Approved').length;
   document.getElementById('s-issued').textContent=a.filter(r=>r.status==='Issued').length;
+  document.getElementById('s-notstarted').textContent=a.filter(r=>r.status==='Not Started').length;
   document.getElementById('s-feedback').textContent=a.filter(r=>r.status==='Feedback').length;
   document.getElementById('s-onhold').textContent=a.filter(r=>r.status==='On Hold').length;
 }
@@ -1239,7 +1253,21 @@ function renderGrid(){
   const feedback=active.filter(r=>r.status==='Feedback');
 
   if(!active.length){
-    const el=document.createElement('div'); el.className='empty-state'; el.textContent='No design requests found.'; grid.appendChild(el);
+    const el=document.createElement('div'); el.className='empty-state';
+    const hasRequests=state.requests.filter(r=>!r.archived).length>0;
+    const isFiltered=state.filter!=='all'||state.search||state.filterSales;
+    if(hasRequests&&isFiltered){
+      el.innerHTML='No requests match your current filter. <span style="color:var(--wsav-gold);cursor:pointer;text-decoration:underline" id="clear-filter-link">Clear filters</span>';
+    } else if(!hasRequests){
+      el.innerHTML='No design requests yet — <span style="color:var(--wsav-gold);cursor:pointer;text-decoration:underline" id="raise-from-empty">raise the first one</span>.';
+    } else {
+      el.textContent='No design requests found.';
+    }
+    grid.appendChild(el);
+    const clf=document.getElementById('clear-filter-link');
+    if(clf) clf.onclick=()=>{ state.filter='all'; state.search=''; state.filterSales=''; document.getElementById('search').value=''; document.getElementById('filter-sales').value=''; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all')); document.querySelectorAll('.stat-cell').forEach(c=>c.classList.remove('stat-active')); renderGrid(); };
+    const rfe=document.getElementById('raise-from-empty');
+    if(rfe) rfe.onclick=()=>document.getElementById('raise-btn').click();
   } else {
     const addSection=(items,label,cls)=>{
       if(!items.length) return;
@@ -1547,7 +1575,7 @@ function renderPanelContent(r){
     const cardBadges=document.getElementById(`badges-${r.spId||r.id}`);
     if(cardBadges){ const ex=cardBadges.querySelector('.dr-badge'); if(r.drawingsReady&&!ex){const b=document.createElement('span');b.className='dr-badge';b.textContent='✓ Drawings Ready';cardBadges.appendChild(b);}else if(!r.drawingsReady&&ex){ex.remove();} }
     saveRequest(r); flashSaved();
-    // Open mailto to notify requester when drawings first marked ready
+    // Show email picker to notify requester when drawings first marked ready
     if(r.drawingsReady && r.requesterEmail){
       const subject=encodeURIComponent(`Drawings Ready — ${r.projectName} (${r.projectCode})`);
       const body=encodeURIComponent(
@@ -1556,7 +1584,20 @@ function renderPanelContent(r){
         (r.folderUrl?`\nFolder: ${r.folderUrl}\n`:'')+
         `\nPlease review and confirm receipt.\n\nWorkspace AV — Technical Design Team`
       );
-      window.open(`mailto:${encodeURIComponent(r.requesterEmail)}?subject=${subject}&body=${body}`);
+      const to=encodeURIComponent(r.requesterEmail);
+      document.getElementById('email-picker-sub').textContent=`Notify ${r.requesterEmail} that drawings are ready`;
+      document.getElementById('email-picker-bg').classList.add('open');
+      document.getElementById('ep-web').onclick=function(){
+        document.getElementById('email-picker-bg').classList.remove('open');
+        window.open(`https://outlook.office.com/mail/deeplink/compose?to=${to}&subject=${subject}&body=${body}`,'_blank');
+      };
+      document.getElementById('ep-app').onclick=function(){
+        document.getElementById('email-picker-bg').classList.remove('open');
+        window.open(`mailto:${r.requesterEmail}?subject=${subject}&body=${body}`);
+      };
+      document.getElementById('ep-cancel').onclick=function(){
+        document.getElementById('email-picker-bg').classList.remove('open');
+      };
     }
   };
 
@@ -1598,8 +1639,7 @@ function renderPanelContent(r){
           }
         }
         const idx=state.requests.findIndex(x=>(x.id===r.id||x.spId===r.spId));
-        if(idx>-1) state.requests.splice(idx,1);
-        saveLocal(); closeDetail(); renderStats(); renderGrid();
+        if(idx>-1) state.requests.splice(idx,1); closeDetail(); renderStats(); renderGrid();
         showToast('Request deleted','success');
       }catch(e){ confirmBtn.disabled=false; confirmBtn.textContent='Delete Request'; showToast('Delete failed: '+e.message,'error'); }
     };
@@ -1640,10 +1680,30 @@ document.getElementById('overlay').onclick=function(){ closeDetail(); document.g
 /* ═══════════════════════════════
    FILTERS / SORT
 ═══════════════════════════════ */
+document.querySelectorAll('.stat-cell.stat-clickable').forEach(cell=>{
+  cell.addEventListener('click',function(){
+    const filter=this.dataset.filter;
+    // Toggle off if already active
+    if(state.filter===filter){
+      state.filter='all';
+      document.querySelectorAll('.stat-cell').forEach(c=>c.classList.remove('stat-active'));
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));
+    } else {
+      state.filter=filter;
+      document.querySelectorAll('.stat-cell').forEach(c=>c.classList.remove('stat-active'));
+      this.classList.add('stat-active');
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));
+    }
+    renderGrid();
+  });
+});
+
 document.querySelectorAll('.filter-btn').forEach(btn=>{
   btn.addEventListener('click',function(){
     document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-    this.classList.add('active'); state.filter=this.dataset.filter; renderGrid();
+    this.classList.add('active'); state.filter=this.dataset.filter;
+    document.querySelectorAll('.stat-cell').forEach(c=>c.classList.toggle('stat-active',c.dataset.filter===state.filter));
+    renderGrid();
   });
 });
 document.getElementById('search').addEventListener('input',function(){ state.search=this.value; renderGrid(); });
@@ -1824,15 +1884,14 @@ document.getElementById('raise-submit').addEventListener('click',async function(
       projectName, projectCode, pm, lead, scope, notes:'',
       floorType, sales, requiredBy, priority,
       revisionType, revisionRef, drawingTypes,
-      status:'In Design', archived:false,
+      status:'Not Started', archived:false,
       createdBy, requesterEmail,
       created:new Date().toISOString().substring(0,10),
       lastModifiedBy:'', lastModifiedAt:'',
       files:[], folderUrl
     };
     state.requests.unshift(newReq);
-    raiseFormOpen=false;
-    saveLocal(); renderStats(); renderGrid(); closeRaiseModal();
+    raiseFormOpen=false; renderStats(); renderGrid(); closeRaiseModal();
     showConfirmation(newReq, 0);
   }catch(e){
     console.error('Submit error:',e); showToast('Failed to submit. Please try again.','error');
@@ -2035,7 +2094,8 @@ const _pdhint=document.getElementById('proj-dashboard-hint');
 if(_pdhint) _pdhint.style.display='none';
 
 // Load local data and render immediately so the UI isn't blank
-state.requests=loadLocal();
+// Data loaded from SharePoint after sign-in
+state.requests=[];
 renderStats(); renderGrid();
 
 async function init(){
