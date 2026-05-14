@@ -54,11 +54,11 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 .user-pill{background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.25);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--wsav-gold);display:none}
 
 /* ── Stats ── */
-.stats-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--wsav-border);border-bottom:1px solid var(--wsav-border);flex-shrink:0;min-width:0}
-.stat-cell{background:var(--wsav-dark);padding:18px 24px;text-align:center}
-.stat-num{font-size:32px;font-weight:700;color:var(--wsav-gold)}
-.stat-lbl{font-size:11px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
-.stat-clickable{cursor:pointer;transition:background 0.15s}
+.stats-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--wsav-border);border-bottom:1px solid var(--wsav-border);flex-shrink:0;min-width:0}
+.stat-cell{background:var(--wsav-dark);padding:12px 8px;text-align:center;user-select:none}
+.stat-num{font-size:24px;font-weight:700;color:var(--wsav-gold)}
+.stat-lbl{font-size:10px;color:var(--wsav-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+.stat-clickable{cursor:pointer;transition:background 0.15s;user-select:none}
 .stat-clickable:hover{background:var(--wsav-dark2)}
 .stat-clickable.stat-active{background:var(--wsav-dark2);box-shadow:inset 0 -2px 0 var(--wsav-gold)}
 
@@ -417,7 +417,7 @@ html,body{width:100%;min-height:100vh;font-family:'Segoe UI',system-ui,sans-seri
 
 <!-- STATS -->
 <div class="stats-row">
-  <div class="stat-cell stat-clickable" data-filter="Not Started" title="Filter by Not Started"><div class="stat-num" id="s-notstarted" style="color:#8aada9">0</div><div class="stat-lbl">Not Started</div></div>
+  <div class="stat-cell stat-clickable" data-filter="Not Started" title="Filter by Not Started"><div class="stat-num" id="s-notstarted">0</div><div class="stat-lbl">Not Started</div></div>
   <div class="stat-cell stat-clickable" data-filter="In Design" title="Filter by In Design"><div class="stat-num" id="s-indesign">0</div><div class="stat-lbl">In Design</div></div>
   <div class="stat-cell stat-clickable" data-filter="In Review" title="Filter by In Review"><div class="stat-num" id="s-inreview">0</div><div class="stat-lbl">In Review</div></div>
   <div class="stat-cell stat-clickable" data-filter="Feedback" title="Filter by Feedback"><div class="stat-num" id="s-feedback">0</div><div class="stat-lbl">Feedback</div></div>
