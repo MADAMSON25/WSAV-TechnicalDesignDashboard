@@ -1167,7 +1167,7 @@ function makeStatusSelect(req){
 }
 
 function makeCard(req,isArchive){
-  const ds=(req.status==='Issued'||req.status==='Feedback')?'none':dueStatus(req.requiredBy);
+  const ds=(req.status==='Issued'||req.status==='Approved'||req.status==='Feedback')?'none':dueStatus(req.requiredBy);
   const isO=ds==='overdue', isU=ds==='urgent';
   const card=document.createElement('div');
   card.className='proj-card'+(isO?' card-overdue':isU?' card-urgent':'');
