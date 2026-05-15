@@ -1119,7 +1119,7 @@ function renderStats(){
 }
 
 function renderUrgentBanner(){
-  const active=state.requests.filter(r=>!r.archived&&r.status!=='Issued');
+  const active=state.requests.filter(r=>!r.archived&&r.status!=='Issued'&&r.status!=='Approved'&&r.status!=='Feedback');
   const ov=active.filter(r=>dueStatus(r.requiredBy)==='overdue');
   const ur=active.filter(r=>dueStatus(r.requiredBy)==='urgent');
   const b=document.getElementById('urgent-banner'),t=document.getElementById('urgent-text');
